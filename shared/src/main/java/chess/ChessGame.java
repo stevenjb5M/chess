@@ -66,7 +66,11 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (isInCheckmate((teamColor))){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
