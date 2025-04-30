@@ -38,6 +38,10 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        ChessPiece pawn1 = new ChessPiece(ChessGame.TeamColor, ChessPiece.PieceType.PAWN);
+        squares = new ChessPiece[8][8];
+
+        ChessPiece blackPawn1 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        ChessPosition blackPawn1Pos = new ChessPosition(0,0);
+        addPiece(blackPawn1Pos, blackPawn1);
     }
 }
