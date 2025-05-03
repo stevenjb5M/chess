@@ -7,19 +7,19 @@ public class PieceMoveCalculator {
     public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece.PieceType type, ChessGame.TeamColor color) {
         switch (type) {
             case KING:
-                PawnMovesCalculator kingMovesCalculator = new PawnMovesCalculator();
+                KingMovesCalculator kingMovesCalculator = new KingMovesCalculator();
                 return kingMovesCalculator.pieceMoves(board, myPosition, color);
             case ROOK:
-                PawnMovesCalculator rookMovesCalculator = new PawnMovesCalculator();
+                RookMovesCalculator rookMovesCalculator = new RookMovesCalculator();
                 return rookMovesCalculator.pieceMoves(board, myPosition, color);
             case QUEEN:
-                PawnMovesCalculator queenMovesCalculator = new PawnMovesCalculator();
+                QueenMovesCalculator queenMovesCalculator = new QueenMovesCalculator();
                 return queenMovesCalculator.pieceMoves(board, myPosition, color);
             case BISHOP:
-                PawnMovesCalculator bishopMovesCalculator = new PawnMovesCalculator();
+                BishopMovesCalculator bishopMovesCalculator = new BishopMovesCalculator();
                 return bishopMovesCalculator.pieceMoves(board, myPosition, color);
             case KNIGHT:
-                PawnMovesCalculator knightMovesCalculator = new PawnMovesCalculator();
+                KnightMovesCalculator knightMovesCalculator = new KnightMovesCalculator();
                 return knightMovesCalculator.pieceMoves(board, myPosition, color);
             case PAWN:
                 PawnMovesCalculator pawnMovesCalculator = new PawnMovesCalculator();

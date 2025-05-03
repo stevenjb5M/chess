@@ -22,7 +22,7 @@ public class PawnMovesCalculator {
         ChessPosition pos1 = new ChessPosition(myPosition.getRow() + move, myPosition.getColumn());
         if (pos1.getColumn() >0 && pos1.getColumn() <9 && pos1.getRow() > 0 && pos1.getRow() < 9)
         {
-            ChessMove move1 = new ChessMove(myPosition, pos1, ChessPiece.PieceType.PAWN);
+            ChessMove move1 = new ChessMove(myPosition, pos1, null);
 
             ChessPiece currentPiece = board.getPiece(move1.getEndPosition());
 
@@ -39,7 +39,7 @@ public class PawnMovesCalculator {
         if ((myPosition.getRow() == 2 && isWhite) || (myPosition.getRow() == 7 && !isWhite)) {
             ChessPosition pos2 = new ChessPosition(myPosition.getRow() + (2 * move), myPosition.getColumn());
             if (pos2.getColumn() > 0 && pos2.getColumn() < 9 && pos2.getRow() > 0 && pos2.getRow() < 9) {
-                ChessMove move2 = new ChessMove(myPosition, pos2, ChessPiece.PieceType.PAWN);
+                ChessMove move2 = new ChessMove(myPosition, pos2, null);
 
 
                 ChessPosition nextPiecePos = new ChessPosition(myPosition.getRow() + move, myPosition.getColumn());
@@ -66,7 +66,7 @@ public class PawnMovesCalculator {
                 //move top right and capture
                 //move top right and capture
 
-                ChessMove move3 = new ChessMove(myPosition, right, ChessPiece.PieceType.PAWN);
+                ChessMove move3 = new ChessMove(myPosition, right, null);
                 if (checkPromotions(myPosition, right, color)){
                     addPromotions(myPosition, right, color);
                 } else {
@@ -82,7 +82,7 @@ public class PawnMovesCalculator {
 
             if (leftPiece != null && leftPiece.getTeamColor() != color) {
                 //move top right and capture
-                ChessMove move4 = new ChessMove(myPosition, left, ChessPiece.PieceType.PAWN);
+                ChessMove move4 = new ChessMove(myPosition, left, null);
                 if (checkPromotions(myPosition, left, color)){
                     addPromotions(myPosition, left, color);
                 } else {

@@ -18,7 +18,7 @@ public class ChessMove {
                      ChessPiece.PieceType promotionPiece) {
         this.startPosition = startPosition;
         this.endPosition = endPosition;
-        this.promotionPiece = null;
+        this.promotionPiece = promotionPiece;
     }
 
     @Override
@@ -56,6 +56,6 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        return null;
+        return promotionPiece;
     }
 }
