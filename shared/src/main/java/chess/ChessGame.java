@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -13,7 +14,8 @@ public class ChessGame {
     private ChessBoard board;
     private TeamColor teamTurn;
     public ChessGame() {
-
+        this.board = new ChessBoard();
+        this.board.resetBoard();
     }
 
     /**
@@ -48,6 +50,15 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        ChessPiece currentPiece = board.getPiece(startPosition);
+
+        if (currentPiece != null) {
+            Collection<ChessMove> validMoves = new ArrayList<>();
+            validMoves = currentPiece.pieceMoves(board, startPosition);
+
+            return validMoves;
+        }
+
         return null;
     }
 
@@ -68,7 +79,29 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessPiece> piecesToCheck = new ArrayList<>();
+        TeamColor teamToCheck = teamColor == TeamColor.BLACK ? TeamColor.WHITE : TeamColor.BLACK;
+
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition position = new ChessPosition(i,j);
+                ChessPiece piece = board.getPiece(position);
+
+                if (piece != null && piece.getTeamColor() == teamToCheck) {
+                    Collection<ChessMove> moves = piece.pieceMoves(board, position);
+
+                    for (ChessMove move : moves){
+                        ChessPiece landingPiece = board.getPiece(move.getEndPosition());
+                        if (landingPiece != null && landingPiece.getPieceType() == ChessPiece.PieceType.KING) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+        }
+
+        return false;
     }
 
     /**
@@ -98,7 +131,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        board = board;
+        this.board = board;
     }
 
     /**
