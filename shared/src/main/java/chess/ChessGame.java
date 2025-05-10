@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -56,14 +57,19 @@ public class ChessGame {
             Collection<ChessMove> validMoves = new ArrayList<>();
             validMoves = currentPiece.pieceMoves(board, startPosition);
 
-            for(ChessMove move: validMoves) {
-                ChessBoard testBoard = board;
+            if (validMoves.size() == 0) {
+                return validMoves;
+            }
+
+            Iterator<ChessMove> iterator = validMoves.iterator();
+            while (iterator.hasNext()) {
+                ChessMove move = iterator.next();
+                ChessBoard testBoard = copyBoard();
                 makeTheMove(testBoard, move);
 
                 if (inCheck(testBoard, currentPiece.getTeamColor())) {
-                    validMoves.remove(move);
+                    iterator.remove();
                 }
-
 
             }
 
@@ -162,11 +168,14 @@ public class ChessGame {
         return false;
     }
 
-    public boolean makeTheMove(ChessBoard board1, ChessMove move) {
+    private boolean makeTheMove(ChessBoard board1, ChessMove move) {
         ChessPiece piece = board1.getPiece(move.getStartPosition());
 
-        if (piece != null)
+        if (piece != null && piece.getTeamColor() == getTeamTurn())
         {
+            if (move.getPromotionPiece() != null) {
+                piece.setPieceType(move.getPromotionPiece());
+            }
             board1.addPiece(move.getEndPosition(), piece);
 
             int row = move.getStartPosition().getRow();
@@ -184,4 +193,24 @@ public class ChessGame {
             return false;
         }
     }
+
+    private ChessBoard copyBoard() {
+        ChessBoard newBoard = new ChessBoard();
+
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition position = new ChessPosition(i,j);
+                ChessPiece pieceToCopy = board.getPiece(position);
+
+                if (pieceToCopy != null) {
+                    ChessPiece newPiece = new ChessPiece(pieceToCopy.getTeamColor(), pieceToCopy.getPieceType());
+                    newBoard.addPiece(position, newPiece);
+                }
+            }
+
+        }
+
+        return newBoard;
+    }
+
 }
