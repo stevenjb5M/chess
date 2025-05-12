@@ -198,6 +198,8 @@ public class ChessGame {
             if (move.getPromotionPiece() != null) {
                 piece.setPieceType(move.getPromotionPiece());
             }
+
+            board1.addPiece(move.getEndPosition(), null);
             board1.addPiece(move.getEndPosition(), piece);
 
             int row = move.getStartPosition().getRow();
