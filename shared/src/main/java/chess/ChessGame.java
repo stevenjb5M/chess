@@ -96,6 +96,10 @@ public class ChessGame {
             throw new InvalidMoveException("Invalid Move Error");
         }
 
+        if (piece.getTeamColor() != getTeamTurn()) {
+            throw new InvalidMoveException("Invalid Move Error");
+        }
+
         if (!validMoves.contains(move)) {
             throw new InvalidMoveException("Invalid Move Error");
         }
@@ -193,7 +197,7 @@ public class ChessGame {
     private boolean makeTheMove(ChessBoard board1, ChessMove move) {
         ChessPiece piece = board1.getPiece(move.getStartPosition());
 
-        if (piece != null && piece.getTeamColor() == getTeamTurn())
+        if (piece != null)
         {
             if (move.getPromotionPiece() != null) {
                 piece.setPieceType(move.getPromotionPiece());
