@@ -59,7 +59,7 @@ public class UserService {
 
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException {
 
-        if (loginRequest == null) {
+        if (loginRequest == null || loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
             throw new BadRequestException();
         }
 
@@ -72,8 +72,9 @@ public class UserService {
             if (username != null && password != null) {
 
                 UserData userData = userDAO.getUser(username);
+                String userPassword = userData.password();
 
-                if (userData.password() == password) {
+                if (userPassword.equals(password)) {
                     String authToken = AuthService.generateToken();
 
                     AuthData authData = new AuthData(authToken, userData.username());
@@ -90,7 +91,7 @@ public class UserService {
             }
 
         } else {
-            throw new BadRequestException();
+            throw new UnauthorizedException();
         }
     }
 
