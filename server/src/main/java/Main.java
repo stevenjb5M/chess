@@ -1,9 +1,22 @@
 import chess.*;
+import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
+import dataAccess.MemoryUserDAO;
+import dataAccess.UserDAO;
+import model.AuthData;
 import server.Server;
+import service.AuthService;
+import service.UserService;
 
 public class Main {
     public static void main(String[] args) {
-        Server myServer = new Server();
+        UserService service = new UserService(new MemoryUserDAO(), new AuthService(new AuthDAO() {
+            @Override
+            public AuthData addAuthData(AuthData authData) throws DataAccessException {
+                return null;
+            }
+        }));
+        Server myServer = new Server(service);
 
         myServer.run(8080);
 
