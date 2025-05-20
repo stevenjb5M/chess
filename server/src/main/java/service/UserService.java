@@ -18,6 +18,10 @@ public class UserService {
 
     public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
 
+        if (registerRequest == null) {
+            throw new DataAccessException("403 Error: Invalid Request");
+        }
+
         UserData existingUser = getUser(registerRequest.getUsername());
 
         if (existingUser == null) {
@@ -30,7 +34,7 @@ public class UserService {
 
             authService.addAuthData(authData);
 
-            return new RegisterResult(authToken, newUser.username());
+            return new RegisterResult(newUser.username(), authToken);
 
         } else {
             throw new DataAccessException("403 Error: Username already taken");
