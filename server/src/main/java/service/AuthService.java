@@ -25,5 +25,13 @@ public class AuthService {
         authDAO.addAuthData(authData);
     }
 
+    public boolean checkIfAuthExisits(String authToken) throws DataAccessException {
+        return authDAO.checkIfAuthExists(authToken);
+    }
+
+    public void removeAuth(String authToken) throws DataAccessException {
+        authDAO.removeAuth(authToken);
+    }
+
 }
 

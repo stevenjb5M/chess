@@ -91,7 +91,17 @@ public class Server {
     }
 
     private Object logout(Request req, Response res) throws DataAccessException {
-        return new Gson().toJson("");
+        try {
+            var request = new Gson().fromJson(req.body(), LogoutRequest.class);
+
+            userService.Logout(request.getAuthToken());
+
+            return new Gson().toJson("");
+
+        } catch (UnauthorizedException e) {
+            res.status(401);
+            return errorHandler(new Exception(e.getMessage()), req, res);
+        }
     }
 
     private Object getGame(Request req, Response res) throws DataAccessException {
