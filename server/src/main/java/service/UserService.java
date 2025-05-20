@@ -1,7 +1,9 @@
 package service;
 
+import dataAccess.BadRequestException;
 import dataAccess.DataAccessException;
 import dataAccess.UserDAO;
+import dataAccess.UsernameTakenException;
 import model.AuthData;
 import model.UserData;
 
@@ -25,19 +27,28 @@ public class UserService {
         UserData existingUser = getUser(registerRequest.getUsername());
 
         if (existingUser == null) {
-            UserData newUser = new UserData(registerRequest.getUsername(), registerRequest.getPassword(), registerRequest.getEmail());
-            userDAO.addUser(newUser);
+            String username = registerRequest.getUsername();
+            String password = registerRequest.getPassword();
+            String email = registerRequest.getEmail();
 
-            String authToken = AuthService.generateToken();
+            if (username != null && password != null && email != null) {
+                UserData newUser = new UserData(username, password, email);
 
-            AuthData authData = new AuthData(authToken, newUser.username());
+                userDAO.addUser(newUser);
 
-            authService.addAuthData(authData);
+                String authToken = AuthService.generateToken();
 
-            return new RegisterResult(newUser.username(), authToken);
+                AuthData authData = new AuthData(authToken, newUser.username());
+
+                authService.addAuthData(authData);
+
+                return new RegisterResult(newUser.username(), authToken);
+            } else {
+                throw new BadRequestException();
+            }
 
         } else {
-            throw new DataAccessException("403 Error: Username already taken");
+            throw new UsernameTakenException();
         }
     }
 

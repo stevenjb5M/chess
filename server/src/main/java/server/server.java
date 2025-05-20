@@ -1,19 +1,25 @@
 package server;
 
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
+import dataAccess.*;
+import model.AuthData;
+import service.AuthService;
 import service.RegisterRequest;
 import service.RegisterResult;
 import service.UserService;
 import spark.*;
 
+import javax.xml.crypto.Data;
 import java.util.Map;
 
 public class Server {
     private final UserService userService;
 
-    public Server(UserService userService) {
-        this.userService = userService;
+    public Server() {
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryAuthDAO authDAQ = new MemoryAuthDAO();
+        AuthService authService = new AuthService(authDAQ);
+        this.userService = new UserService(userDAO, authService);
     }
 
     public int run(int desiredPort) {
@@ -22,13 +28,13 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.post("/user/register", this::register);
-        Spark.post("/session", this::register);
-        Spark.delete("/session", this::register);
-        Spark.get("/game", this::register);
-        Spark.post("/game", this::register);
-        Spark.put("/game", this::register);
-        Spark.delete("/db", this::register);
+        Spark.post("/user", this::register);
+        Spark.post("/session", this::login);
+        Spark.delete("/session", this::logout);
+        Spark.get("/game", this::getGame);
+        Spark.post("/game", this::createGame);
+        Spark.put("/game", this::updateGame);
+        Spark.delete("/db", this::clear);
 
 
 
@@ -44,11 +50,55 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private Object register(Request req, Response res) throws DataAccessException {
-        var request = new Gson().fromJson(req.body(), RegisterRequest.class);
-        RegisterResult result = userService.register(request);
-        return new Gson().toJson(result);
+    public Object errorHandler(Exception e, Request req, Response res) {
+        var body = new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage()), "success", false));
+        res.type("application/json");
+        res.body(body);
+        return body;
     }
+
+    private Object register(Request req, Response res) throws DataAccessException {
+
+        try {
+            var request = new Gson().fromJson(req.body(), RegisterRequest.class);
+
+            RegisterResult result = userService.register(request);
+
+            return new Gson().toJson(result);
+
+        } catch (UsernameTakenException e) {
+            res.status(403);
+            return errorHandler(new Exception(e.getMessage()), req, res);
+        }
+    }
+
+    private Object login(Request req, Response res) throws DataAccessException {
+        return new Gson().toJson("");
+    }
+
+    private Object logout(Request req, Response res) throws DataAccessException {
+        return new Gson().toJson("");
+    }
+
+    private Object getGame(Request req, Response res) throws DataAccessException {
+        return new Gson().toJson("");
+    }
+
+    private Object createGame(Request req, Response res) throws DataAccessException {
+        return new Gson().toJson("");
+    }
+
+    private Object updateGame(Request req, Response res) throws DataAccessException {
+        return new Gson().toJson("");
+    }
+
+    private Object clear(Request req, Response res) throws DataAccessException {
+        userService.clearUsers();
+        res.status(200);
+        return "";
+
+    }
+
 }
 
 

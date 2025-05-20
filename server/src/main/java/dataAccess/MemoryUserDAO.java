@@ -18,14 +18,21 @@ public class MemoryUserDAO implements UserDAO {
             users.put(user.username(),user);
             return user;
         } else {
-            throw new DataAccessException("Error: already taken");
+            throw new UsernameTakenException("Error: already taken");
         }
 
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException {
-        return null;
+    public UserData getUser(String username) {
+
+        UserData user = users.get(username);
+
+        if (user == null) {
+            return null;
+        } else {
+            return user;
+        }
     }
 
     @Override
