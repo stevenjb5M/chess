@@ -45,5 +45,9 @@ public class UserService {
         return (userDAO.getUser(username));
     }
 
+    public void clearUsers() throws DataAccessException {
+        userDAO.clearUsers();
+    }
+
 }
 

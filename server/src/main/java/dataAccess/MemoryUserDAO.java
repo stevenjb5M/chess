@@ -7,16 +7,29 @@ import java.util.Collection;
 import java.util.HashMap;
 
 public class MemoryUserDAO implements UserDAO {
-    final private HashMap<Integer, UserData> users = new HashMap<>();
+    final private HashMap<String, UserData> users = new HashMap<>();
 
     @Override
     public UserData addUser(UserData user) throws DataAccessException {
-        users.put(3,user);
-        return user;
+
+        UserData existingUser = users.get(user.username());
+
+        if (existingUser == null) {
+            users.put(user.username(),user);
+            return user;
+        } else {
+            throw new DataAccessException("Error: already taken");
+        }
+
     }
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
         return null;
+    }
+
+    @Override
+    public void clearUsers() throws DataAccessException {
+        users.clear();
     }
 }

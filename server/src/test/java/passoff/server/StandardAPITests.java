@@ -33,13 +33,7 @@ public class StandardAPITests {
 
     @BeforeAll
     public static void init() {
-        UserService service = new UserService(new MemoryUserDAO(), new AuthService(new AuthDAO() {
-            @Override
-            public AuthData addAuthData(AuthData authData) throws DataAccessException {
-                return null;
-            }
-        }));
-        server = new Server(service);
+        server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
 

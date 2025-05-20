@@ -10,13 +10,7 @@ import service.UserService;
 
 public class Main {
     public static void main(String[] args) {
-        UserService service = new UserService(new MemoryUserDAO(), new AuthService(new AuthDAO() {
-            @Override
-            public AuthData addAuthData(AuthData authData) throws DataAccessException {
-                return null;
-            }
-        }));
-        Server myServer = new Server(service);
+        Server myServer = new Server();
 
         myServer.run(8080);
 
