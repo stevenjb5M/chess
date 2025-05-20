@@ -1,9 +1,6 @@
 package service;
 
-import dataAccess.BadRequestException;
-import dataAccess.DataAccessException;
-import dataAccess.UserDAO;
-import dataAccess.UsernameTakenException;
+import dataAccess.*;
 import model.AuthData;
 import model.UserData;
 
@@ -58,6 +55,43 @@ public class UserService {
 
     public void clearUsers() throws DataAccessException {
         userDAO.clearUsers();
+    }
+
+    public LoginResult login(LoginRequest loginRequest) throws DataAccessException {
+
+        if (loginRequest == null) {
+            throw new BadRequestException();
+        }
+
+        UserData user = getUser(loginRequest.getUsername());
+
+        if (user != null) {
+            String username = loginRequest.getUsername();
+            String password = loginRequest.getPassword();
+
+            if (username != null && password != null) {
+
+                UserData userData = userDAO.getUser(username);
+
+                if (userData.password() == password) {
+                    String authToken = AuthService.generateToken();
+
+                    AuthData authData = new AuthData(authToken, userData.username());
+
+                    authService.addAuthData(authData);
+
+                    return new LoginResult(username, authToken);
+                } else {
+                    throw new UnauthorizedException();
+                }
+
+            } else {
+                throw new BadRequestException();
+            }
+
+        } else {
+            throw new BadRequestException();
+        }
     }
 
 }

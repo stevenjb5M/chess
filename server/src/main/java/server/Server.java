@@ -3,10 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataAccess.*;
 import model.AuthData;
-import service.AuthService;
-import service.RegisterRequest;
-import service.RegisterResult;
-import service.UserService;
+import service.*;
 import spark.*;
 
 import javax.xml.crypto.Data;
@@ -69,11 +66,28 @@ public class Server {
         } catch (UsernameTakenException e) {
             res.status(403);
             return errorHandler(new Exception(e.getMessage()), req, res);
+        } catch (BadRequestException e) {
+            res.status(400);
+            return errorHandler(new Exception(e.getMessage()), req, res);
         }
     }
 
     private Object login(Request req, Response res) throws DataAccessException {
-        return new Gson().toJson("");
+        try {
+            var request = new Gson().fromJson(req.body(), LoginRequest.class);
+
+            LoginResult result = userService.login(request);
+
+            return new Gson().toJson(result);
+
+        } catch (BadRequestException e) {
+            res.status(400);
+            return errorHandler(new Exception(e.getMessage()), req, res);
+        } catch (UnauthorizedException e) {
+            res.status(401);
+            return errorHandler(new Exception(e.getMessage()), req, res);
+        }
+
     }
 
     private Object logout(Request req, Response res) throws DataAccessException {
