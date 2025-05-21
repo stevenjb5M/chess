@@ -234,12 +234,8 @@ public class ChessGame {
 
                 if (piece != null && piece.getTeamColor() == teamToCheck) {
                     Collection<ChessMove> moves = piece.pieceMoves(board1, position);
-
-                    for (ChessMove move : moves){
-                        ChessPiece landingPiece = board1.getPiece(move.getEndPosition());
-                        if (isKingOfTeam(landingPiece, teamColor)) {
-                            return true;
-                        }
+                    if (isKingReachable(moves, board1, teamColor)) {
+                        return true;
                     }
                 }
             }
@@ -248,6 +244,18 @@ public class ChessGame {
 
         return false;
     }
+
+    private boolean isKingReachable(Collection<ChessMove> moves, ChessBoard board1, TeamColor teamColor) {
+        for (ChessMove move : moves){
+            ChessPiece landingPiece = board1.getPiece(move.getEndPosition());
+            if (isKingOfTeam(landingPiece, teamColor)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
     private boolean isKingOfTeam(ChessPiece landingPiece, TeamColor teamColor) {
         if (landingPiece != null && landingPiece.getPieceType() == ChessPiece.PieceType.KING && landingPiece.getTeamColor() == teamColor) {
