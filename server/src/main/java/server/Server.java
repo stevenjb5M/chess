@@ -123,18 +123,16 @@ public class Server {
             var request = new Gson().fromJson(req.body(), CreateGameRequest.class);
             String authToken = req.headers("authorization");
 
-            if (authToken == null && !authService.checkIfAuthExisits(authToken)) {
+            if (authToken == null || !authService.checkIfAuthExisits(authToken)) {
                 res.status(401);
                 return errorHandler(new Exception(new UnauthorizedException()), req, res);
             }
 
             CreateGameResult result = gameService.createGame(request);
+            int test = result.getGameID();
 
-            return new Gson().toJson(result.getGameId());
+            return new Gson().toJson(result);
 
-        } catch (UsernameTakenException e) {
-            res.status(403);
-            return errorHandler(new Exception(e.getMessage()), req, res);
         } catch (BadRequestException e) {
             res.status(400);
             return errorHandler(new Exception(e.getMessage()), req, res);

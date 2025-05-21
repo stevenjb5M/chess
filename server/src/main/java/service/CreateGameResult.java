@@ -1,28 +1,18 @@
 package service;
 
 public class CreateGameResult {
-    private String gameName;
-    private String gameId;
+    private int gameID;
 
-    public CreateGameResult(String gameName, String gameId) {
-        this.gameName = gameName;
-        this.gameId = gameId;
+    public CreateGameResult(int gameId) {
+        this.gameID = gameId;
     }
 
-    public String getGameName() {
-        return gameName;
+    public int getGameID() {
+        return gameID;
     }
 
-    public String getGameId() {
-        return gameId;
-    }
-
-    public void setGameName(String gameName) {
-        this.gameName = gameName;
-    }
-
-    public void setGameId(String gameId) {
-        this.gameId = gameId;
+    public void setGameID(int gameId) {
+        this.gameID = gameId;
     }
 
 

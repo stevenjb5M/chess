@@ -20,13 +20,17 @@ public class UnitTests {
     private static TestCreateRequest createRequest;
     private static UserService userService;
     private static AuthService authService;
+    private static GameService gameService;
+
 
     @BeforeAll
     public static void init() {
         MemoryUserDAO userDAO = new MemoryUserDAO();
         MemoryAuthDAO authDAQ = new MemoryAuthDAO();
+        MemoryGameDAQ gameDAQ = new MemoryGameDAQ();
         authService = new AuthService(authDAQ);
         userService = new UserService(userDAO, authService);
+        gameService = new GameService(gameDAQ);
     }
 
     @BeforeEach
@@ -131,6 +135,37 @@ public class UnitTests {
             userService.Logout(logoutRequest.getAuthToken());
         });
 
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("Create Game Positive")
+    public void CreateGamePositive() throws DataAccessException {
+        RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
+
+        userService.register(request);
+
+        CreateGameRequest createGameRequest = new CreateGameRequest("test");
+
+        CreateGameResult result = gameService.createGame(createGameRequest);
+
+        Assertions.assertNotNull(result.getGameID());
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("Create Game Negative")
+    public void CreateGameNegative() throws DataAccessException {
+        RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
+
+        userService.register(request);
+
+        CreateGameRequest createGameRequest = new CreateGameRequest(null);
+
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            CreateGameResult result = gameService.createGame(createGameRequest);
+        });
     }
 
 

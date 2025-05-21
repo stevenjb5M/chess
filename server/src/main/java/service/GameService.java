@@ -13,12 +13,13 @@ public class GameService {
         this.gameDAO = gameDAQ;
     }
 
-    public CreateGameResult createGame(CreateGameRequest registerRequest) throws DataAccessException {
-        if (this.gameDAO.getGame(registerRequest.getGameName()) == null) {
-            GameData gameData = new GameData(0, null, null, registerRequest.getGameName(), null);
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
+        if (this.gameDAO.getGame(createGameRequest.getGameName()) == null && createGameRequest.getGameName() != null) {
+            GameData gameData = new GameData(0, null, null, createGameRequest.getGameName(), null);
 
-            GameData result = this.gameDAO.addGame(gameData);
+            GameData gameData1 = this.gameDAO.addGame(gameData);
             //cast to result
+            CreateGameResult result = new CreateGameResult(gameData1.gameID());
 
             return result;
         } else {
