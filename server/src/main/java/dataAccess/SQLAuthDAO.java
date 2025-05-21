@@ -15,38 +15,26 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public AuthData addAuthData(AuthData authData) throws DataAccessException {
-        auths.put(authData.authToken(), authData);
-        return authData;
+        return null;
     }
 
     @Override
     public Boolean checkIfAuthExists(String authToken) throws DataAccessException {
-        AuthData data = auths.get(authToken);
-
-        if (data != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return null;
     }
 
     @Override
     public void removeAuth(String authToken) throws DataAccessException {
-        if (checkIfAuthExists(authToken)) {
-            auths.remove(authToken);
-        }
+
     }
 
     @Override
     public String getUserByAuth(String authToken) throws DataAccessException {
-        AuthData data = auths.get(authToken);
-        return data.username();
+        return "";
     }
 
     @Override
     public void clearAuths() throws DataAccessException {
-        auths.clear();
+
     }
-
-
 }
