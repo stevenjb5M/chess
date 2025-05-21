@@ -1,17 +1,11 @@
 package service;
 
 import chess.ChessGame;
-import dataAccess.*;
-import model.AuthData;
+import dataaccess.*;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
-import passoff.server.TestServerFacade;
-import server.Server;
-import service.AuthService;
-import service.UserService;
 
-import java.net.HttpURLConnection;
 import java.util.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

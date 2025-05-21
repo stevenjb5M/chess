@@ -1,15 +1,9 @@
 package passoff.server;
 
 import chess.ChessGame;
-import dataAccess.AuthDAO;
-import dataAccess.DataAccessException;
-import dataAccess.MemoryUserDAO;
-import model.AuthData;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
 import server.Server;
-import service.AuthService;
-import service.UserService;
 
 import java.net.HttpURLConnection;
 import java.util.*;

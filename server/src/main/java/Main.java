@@ -1,12 +1,5 @@
 import chess.*;
-import dataAccess.AuthDAO;
-import dataAccess.DataAccessException;
-import dataAccess.MemoryUserDAO;
-import dataAccess.UserDAO;
-import model.AuthData;
 import server.Server;
-import service.AuthService;
-import service.UserService;
 
 public class Main {
     public static void main(String[] args) {
