@@ -105,7 +105,7 @@ public class UnitTests {
 
         LogoutRequest logoutRequest = new LogoutRequest(loginResult.getAuthToken());
 
-        userService.Logout(logoutRequest.getAuthToken());
+        userService.logout(logoutRequest.getAuthToken());
 
         Assertions.assertFalse(authService.checkIfAuthExisits(logoutRequest.getAuthToken()));
 
@@ -127,7 +127,7 @@ public class UnitTests {
 
 
         Assertions.assertThrows(UnauthorizedException.class, () -> {
-            userService.Logout(logoutRequest.getAuthToken());
+            userService.logout(logoutRequest.getAuthToken());
         });
 
     }

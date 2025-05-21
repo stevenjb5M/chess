@@ -95,7 +95,7 @@ public class UserService {
         }
     }
 
-    public void Logout(String authToken) throws DataAccessException {
+    public void logout(String authToken) throws DataAccessException {
         if (authService.checkIfAuthExisits(authToken)) {
             authService.removeAuth(authToken);
         } else {

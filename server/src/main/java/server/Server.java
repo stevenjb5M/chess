@@ -104,7 +104,7 @@ public class Server {
                 return errorHandler(new Exception(new UnauthorizedException()), req, res);
             }
 
-            userService.Logout(authToken);
+            userService.logout(authToken);
 
             return new Gson().toJson(Map.of("message", "Success"));
 
