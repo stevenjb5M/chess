@@ -237,7 +237,7 @@ public class ChessGame {
 
                     for (ChessMove move : moves){
                         ChessPiece landingPiece = board1.getPiece(move.getEndPosition());
-                        if (landingPiece != null && landingPiece.getPieceType() == ChessPiece.PieceType.KING && landingPiece.getTeamColor() == teamColor) {
+                        if (isKingOfTeam(landingPiece, teamColor)) {
                             return true;
                         }
                     }
@@ -247,6 +247,14 @@ public class ChessGame {
         }
 
         return false;
+    }
+
+    private boolean isKingOfTeam(ChessPiece landingPiece, TeamColor teamColor) {
+        if (landingPiece != null && landingPiece.getPieceType() == ChessPiece.PieceType.KING && landingPiece.getTeamColor() == teamColor) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private boolean makeTheMove(ChessBoard board1, ChessMove move) {
