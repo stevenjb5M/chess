@@ -123,68 +123,68 @@ public class ChessBoard {
         ChessPosition whiteBishop2Pos = new ChessPosition(1, 6);
         addPiece(whiteBishop2Pos, whiteBishop2);
 
-        ChessPiece BlackPawn1 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-        ChessPosition BlackPawn1Pos = new ChessPosition(7, 1);
-        addPiece(BlackPawn1Pos, BlackPawn1);
+        ChessPiece blackPawn1 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        ChessPosition blackPawn1Pos = new ChessPosition(7, 1);
+        addPiece(blackPawn1Pos, blackPawn1);
 
-        ChessPiece BlackPawn2 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-        ChessPosition BlackPawn2Pos = new ChessPosition(7, 2);
-        addPiece(BlackPawn2Pos, BlackPawn2);
+        ChessPiece blackPawn2 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        ChessPosition blackPawn2Pos = new ChessPosition(7, 2);
+        addPiece(blackPawn2Pos, blackPawn2);
 
-        ChessPiece BlackPawn3 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-        ChessPosition BlackPawn3Pos = new ChessPosition(7, 3);
-        addPiece(BlackPawn3Pos, BlackPawn3);
+        ChessPiece blackPawn3 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        ChessPosition blackPawn3Pos = new ChessPosition(7, 3);
+        addPiece(blackPawn3Pos, blackPawn3);
 
-        ChessPiece BlackPawn4 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-        ChessPosition BlackPawn4Pos = new ChessPosition(7, 4);
-        addPiece(BlackPawn4Pos, BlackPawn4);
+        ChessPiece blackPawn4 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        ChessPosition blackPawn4Pos = new ChessPosition(7, 4);
+        addPiece(blackPawn4Pos, blackPawn4);
 
-        ChessPiece BlackPawn5 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-        ChessPosition BlackPawn5Pos = new ChessPosition(7, 5);
-        addPiece(BlackPawn5Pos, BlackPawn5);
+        ChessPiece blackPawn5 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        ChessPosition blackPawn5Pos = new ChessPosition(7, 5);
+        addPiece(blackPawn5Pos, blackPawn5);
 
-        ChessPiece BlackPawn6 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-        ChessPosition BlackPawn6Pos = new ChessPosition(7, 6);
-        addPiece(BlackPawn6Pos, BlackPawn6);
+        ChessPiece blackPawn6 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        ChessPosition blackPawn6Pos = new ChessPosition(7, 6);
+        addPiece(blackPawn6Pos, blackPawn6);
 
-        ChessPiece BlackPawn7 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-        ChessPosition BlackPawn7Pos = new ChessPosition(7, 7);
-        addPiece(BlackPawn7Pos, BlackPawn7);
+        ChessPiece blackPawn7 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        ChessPosition blackPawn7Pos = new ChessPosition(7, 7);
+        addPiece(blackPawn7Pos, blackPawn7);
 
-        ChessPiece BlackPawn8 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-        ChessPosition BlackPawn8Pos = new ChessPosition(7, 8);
-        addPiece(BlackPawn8Pos, BlackPawn8);
+        ChessPiece blackPawn8 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        ChessPosition blackPawn8Pos = new ChessPosition(7, 8);
+        addPiece(blackPawn8Pos, blackPawn8);
 
-        ChessPiece BlackKing = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
-        ChessPosition BlackKingPos = new ChessPosition(8, 5);
-        addPiece(BlackKingPos, BlackKing);
+        ChessPiece blackKing = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
+        ChessPosition blackKingPos = new ChessPosition(8, 5);
+        addPiece(blackKingPos, blackKing);
 
-        ChessPiece BlackQueen = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
-        ChessPosition BlackQueenPos = new ChessPosition(8, 4);
-        addPiece(BlackQueenPos, BlackQueen);
+        ChessPiece blackQueen = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
+        ChessPosition blackQueenPos = new ChessPosition(8, 4);
+        addPiece(blackQueenPos, blackQueen);
 
-        ChessPiece BlackRook1 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
-        ChessPosition BlackRook1Pos = new ChessPosition(8, 1);
-        addPiece(BlackRook1Pos, BlackRook1);
+        ChessPiece blackRook1 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
+        ChessPosition blackRook1Pos = new ChessPosition(8, 1);
+        addPiece(blackRook1Pos, blackRook1);
 
-        ChessPiece BlackRook2 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
-        ChessPosition BlackRook2Pos = new ChessPosition(8, 8);
-        addPiece(BlackRook2Pos, BlackRook2);
+        ChessPiece blackRook2 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
+        ChessPosition blackRook2Pos = new ChessPosition(8, 8);
+        addPiece(blackRook2Pos, blackRook2);
 
-        ChessPiece BlackKnight1 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
-        ChessPosition BlackKnight1Pos = new ChessPosition(8, 2);
-        addPiece(BlackKnight1Pos, BlackKnight1);
+        ChessPiece blackKnight1 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
+        ChessPosition blackKnight1Pos = new ChessPosition(8, 2);
+        addPiece(blackKnight1Pos, blackKnight1);
 
-        ChessPiece BlackKnight2 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
-        ChessPosition BlackKnight2Pos = new ChessPosition(8, 7);
-        addPiece(BlackKnight2Pos, BlackKnight2);
+        ChessPiece blackKnight2 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
+        ChessPosition blackKnight2Pos = new ChessPosition(8, 7);
+        addPiece(blackKnight2Pos, blackKnight2);
 
-        ChessPiece BlackBishop1 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
-        ChessPosition BlackBishop1Pos = new ChessPosition(8, 3);
-        addPiece(BlackBishop1Pos, BlackBishop1);
+        ChessPiece blackBishop1 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
+        ChessPosition blackBishop1Pos = new ChessPosition(8, 3);
+        addPiece(blackBishop1Pos, blackBishop1);
 
-        ChessPiece BlackBishop2 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
-        ChessPosition BlackBishop2Pos = new ChessPosition(8, 6);
-        addPiece(BlackBishop2Pos, BlackBishop2);
+        ChessPiece blackBishop2 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
+        ChessPosition blackBishop2Pos = new ChessPosition(8, 6);
+        addPiece(blackBishop2Pos, blackBishop2);
     }
 }
