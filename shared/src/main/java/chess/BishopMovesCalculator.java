@@ -25,7 +25,10 @@ public class BishopMovesCalculator {
             for (int i = 1; i < 8; i++) {
                 ChessPosition pos1 = new ChessPosition(myPosition.getRow() + dir[0] * i, myPosition.getColumn() + dir[1] * i);
                 ChessMove move1 = new ChessMove(myPosition, pos1, null);
-                if (checkBounds(pos1)) {
+                if (!checkBounds(pos1)) {
+                    break;
+                }
+
                     ChessPiece currentPiece = board.getPiece(move1.getEndPosition());
 
                     if (currentPiece == null) {
@@ -39,7 +42,6 @@ public class BishopMovesCalculator {
                         }
                     }
                 }
-            }
         }
 
 
