@@ -28,7 +28,9 @@ public class RookMovesCalculator {
                 if (!checkBounds(pos1)) {
                     break;
                 }
-                    ChessPiece currentPiece = board.getPiece(move1.getEndPosition());
+
+                    ChessPosition pos2 = move1.getEndPosition();
+                    ChessPiece currentPiece = board.getPiece(pos2);
 
                     if (currentPiece == null) {
                         possibleMoves.add(move1);
@@ -42,8 +44,6 @@ public class RookMovesCalculator {
                     }
             }
         }
-
-
         return possibleMoves;
 
     }
