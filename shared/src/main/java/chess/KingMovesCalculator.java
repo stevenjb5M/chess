@@ -23,15 +23,15 @@ public class KingMovesCalculator {
 
         for (int[] dir: directions) {
                 ChessPosition pos1 = new ChessPosition(myPosition.getRow() + dir[0], myPosition.getColumn() + dir[1]);
-                ChessMove move1 = new ChessMove(myPosition, pos1, null);
+                ChessMove move2 = new ChessMove(myPosition, pos1, null);
                 if (checkBounds(pos1)) {
-                    ChessPiece currentPiece = board.getPiece(move1.getEndPosition());
+                    ChessPiece currentPiece = board.getPiece(move2.getEndPosition());
 
                     if (currentPiece == null) {
-                        possibleMoves.add(move1);
+                        possibleMoves.add(move2);
                     } else {
                         if (currentPiece.getTeamColor() != color) {
-                            possibleMoves.add(move1);
+                            possibleMoves.add(move2);
                         }
                     }
                 }
