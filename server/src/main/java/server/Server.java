@@ -2,11 +2,9 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.*;
-import model.AuthData;
 import service.*;
 import spark.*;
 
-import javax.xml.crypto.Data;
 import java.util.Map;
 
 public class Server {
@@ -36,7 +34,7 @@ public class Server {
         Spark.delete("/session", this::logout);
         Spark.get("/game", this::getGame);
         Spark.post("/game", this::createGame);
-        Spark.put("/game", this::updateGame);
+        Spark.put("/game", this::joinGame);
         Spark.delete("/db", this::clear);
 
 
@@ -140,8 +138,28 @@ public class Server {
 
     }
 
-    private Object updateGame(Request req, Response res) throws DataAccessException {
-        return new Gson().toJson("");
+    private Object joinGame(Request req, Response res) throws DataAccessException {
+        try {
+            var request = new Gson().fromJson(req.body(), JoinGameRequest.class);
+            String authToken = req.headers("authorization");
+
+            if (authToken == null || !authService.checkIfAuthExisits(authToken)) {
+                res.status(401);
+                return errorHandler(new Exception(new UnauthorizedException()), req, res);
+            }
+
+            String username = this.authService.getUserByAuth(authToken);
+
+            this.gameService.joinGame(request, username);
+
+            return new Gson().toJson(Map.of("message", "Success"));
+        } catch (BadRequestException e) {
+            res.status(400);
+            return errorHandler(new Exception(e.getMessage()), req, res);
+        } catch (UsernameTakenException e) {
+            res.status(403);
+            return errorHandler(new Exception(e.getMessage()), req, res);
+        }
     }
 
     private Object clear(Request req, Response res) throws DataAccessException {

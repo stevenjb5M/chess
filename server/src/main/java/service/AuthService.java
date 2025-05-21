@@ -33,5 +33,9 @@ public class AuthService {
         authDAO.removeAuth(authToken);
     }
 
+    public String getUserByAuth(String authToken) throws DataAccessException {
+        return authDAO.getUserByAuth(authToken);
+    }
+
 }
 

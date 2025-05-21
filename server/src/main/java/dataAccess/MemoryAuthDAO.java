@@ -37,5 +37,11 @@ public class MemoryAuthDAO implements AuthDAO {
         }
     }
 
+    @Override
+    public String getUserByAuth(String authToken) throws DataAccessException {
+        AuthData data = auths.get(authToken);
+        return data.username();
+    }
+
 
 }

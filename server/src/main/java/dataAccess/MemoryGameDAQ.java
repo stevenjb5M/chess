@@ -1,7 +1,9 @@
 package dataAccess;
 
+import chess.ChessGame;
 import model.GameData;
 import service.CreateGameResult;
+import service.JoinGameRequest;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -24,4 +26,33 @@ public class MemoryGameDAQ implements GameDAO {
     public GameData getGame(String gameName) throws DataAccessException {
         return null;
     }
+
+    @Override
+    public GameData getGame(int gameID) throws DataAccessException {
+        GameData data = games.get(gameID);
+        return data;
+    }
+
+    @Override
+    public GameData joinGame(JoinGameRequest request, String username) throws DataAccessException {
+        GameData data = games.get(request.getGameID());
+        if (request.getPlayerColor() == ChessGame.TeamColor.WHITE) {
+            if (data.whiteUsername() == null) {
+                GameData newGame = new GameData(data.gameID(), username, data.blackUsername(), data.gameName(), data.game());
+                games.put(data.gameID(), newGame);
+            } else {
+                throw new UsernameTakenException();
+            }
+        } else {
+            if (data.blackUsername() == null) {
+                GameData newGame = new GameData(data.gameID(), data.whiteUsername(), username, data.gameName(), data.game());
+                games.put(data.gameID(), newGame);
+            } else {
+                throw new UsernameTakenException();
+            }
+        }
+        return data;
+    }
+
+
 }

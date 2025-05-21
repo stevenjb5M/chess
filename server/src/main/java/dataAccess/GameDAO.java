@@ -2,10 +2,14 @@ package dataAccess;
 
 import model.GameData;
 import model.UserData;
+import service.JoinGameRequest;
 
 public interface GameDAO {
     GameData addGame(GameData game) throws DataAccessException;
 
     GameData getGame(String gameName) throws DataAccessException;
 
+    GameData getGame(int gameID) throws DataAccessException;
+
+    GameData joinGame(JoinGameRequest request, String username) throws DataAccessException;
 }
