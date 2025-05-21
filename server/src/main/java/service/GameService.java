@@ -28,7 +28,9 @@ public class GameService {
     }
 
     public void joinGame(JoinGameRequest joinGameRequest, String username) throws DataAccessException {
-        if (joinGameRequest.getGameID() != null && this.gameDAO.getGame(joinGameRequest.getGameID()) != null && joinGameRequest.getPlayerColor() != null && username != null) {
+        boolean joinIdExists = joinGameRequest.getGameID() != null;
+
+        if (joinIdExists && this.gameDAO.getGame(joinGameRequest.getGameID()) != null && joinGameRequest.getPlayerColor() != null && username != null) {
 
             this.gameDAO.joinGame(joinGameRequest, username);
 
