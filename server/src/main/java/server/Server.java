@@ -92,11 +92,16 @@ public class Server {
 
     private Object logout(Request req, Response res) throws DataAccessException {
         try {
-            var request = new Gson().fromJson(req.body(), LogoutRequest.class);
+            String authToken = req.headers("authorization");
 
-            userService.Logout(request.getAuthToken());
+            if (authToken == null) {
+                res.status(401);
+                return errorHandler(new Exception(new UnauthorizedException()), req, res);
+            }
 
-            return new Gson().toJson("");
+            userService.Logout(authToken);
+
+            return new Gson().toJson(Map.of("message", "Success"));
 
         } catch (UnauthorizedException e) {
             res.status(401);
