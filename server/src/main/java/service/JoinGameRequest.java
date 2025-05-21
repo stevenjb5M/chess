@@ -6,9 +6,9 @@ public class JoinGameRequest {
     private final ChessGame.TeamColor playerColor;
     private final Integer gameID;
 
-    public JoinGameRequest(ChessGame.TeamColor teamColor, Integer GameID) {
+    public JoinGameRequest(ChessGame.TeamColor teamColor, Integer gameId) {
        playerColor = teamColor;
-       gameID = GameID;
+       gameID = gameId;
     }
 
     public Integer getGameID() {
