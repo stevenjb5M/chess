@@ -1,21 +1,31 @@
 package service;
 
-import dataAccess.AuthDAO;
-import dataAccess.DataAccessException;
-import dataAccess.UserDAO;
+import dataAccess.*;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 
 public class GameService {
 
-    private final UserDAO userDAO;
-    private final AuthService authService;
+    private final GameDAO gameDAO;
 
-
-    public GameService(UserDAO userDAO, AuthService authService) {
-        this.userDAO = userDAO;
-        this.authService = authService;
+    public GameService(GameDAO gameDAQ) {
+        this.gameDAO = gameDAQ;
     }
+
+    public CreateGameResult createGame(CreateGameRequest registerRequest) throws DataAccessException {
+        if (this.gameDAO.getGame(registerRequest.getGameName()) == null) {
+            GameData gameData = new GameData(0, null, null, registerRequest.getGameName(), null);
+
+            GameData result = this.gameDAO.addGame(gameData);
+            //cast to result
+
+            return result;
+        } else {
+            throw new BadRequestException();
+        }
+    }
+
 
 }
 

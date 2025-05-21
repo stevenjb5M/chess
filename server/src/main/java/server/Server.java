@@ -11,12 +11,18 @@ import java.util.Map;
 
 public class Server {
     private final UserService userService;
+    private final GameService gameService;
+    private final AuthService authService;
+
 
     public Server() {
         MemoryUserDAO userDAO = new MemoryUserDAO();
         MemoryAuthDAO authDAQ = new MemoryAuthDAO();
-        AuthService authService = new AuthService(authDAQ);
+        MemoryGameDAQ gameDAQ = new MemoryGameDAQ();
+        this.authService = new AuthService(authDAQ);
         this.userService = new UserService(userDAO, authService);
+
+        this.gameService = new GameService(gameDAQ);
     }
 
     public int run(int desiredPort) {
@@ -55,7 +61,6 @@ public class Server {
     }
 
     private Object register(Request req, Response res) throws DataAccessException {
-
         try {
             var request = new Gson().fromJson(req.body(), RegisterRequest.class);
 
@@ -114,7 +119,27 @@ public class Server {
     }
 
     private Object createGame(Request req, Response res) throws DataAccessException {
-        return new Gson().toJson("");
+        try {
+            var request = new Gson().fromJson(req.body(), CreateGameRequest.class);
+            String authToken = req.headers("authorization");
+
+            if (authToken == null && !authService.checkIfAuthExisits(authToken)) {
+                res.status(401);
+                return errorHandler(new Exception(new UnauthorizedException()), req, res);
+            }
+
+            CreateGameResult result = gameService.createGame(request);
+
+            return new Gson().toJson(result.getGameId());
+
+        } catch (UsernameTakenException e) {
+            res.status(403);
+            return errorHandler(new Exception(e.getMessage()), req, res);
+        } catch (BadRequestException e) {
+            res.status(400);
+            return errorHandler(new Exception(e.getMessage()), req, res);
+        }
+
     }
 
     private Object updateGame(Request req, Response res) throws DataAccessException {
