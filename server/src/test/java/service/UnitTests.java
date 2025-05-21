@@ -61,7 +61,7 @@ public class UnitTests {
     @Test
     @Order(1)
     @DisplayName("Login Positive")
-    public void LoginPositive() throws DataAccessException {
+    public void loginPositive() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
 
         userService.register(request);
@@ -77,7 +77,7 @@ public class UnitTests {
     @Test
     @Order(1)
     @DisplayName("Login Negative")
-    public void LoginNegative() throws DataAccessException {
+    public void loginNegative() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
 
         userService.register(request);
@@ -94,7 +94,7 @@ public class UnitTests {
     @Test
     @Order(1)
     @DisplayName("Logout Positive")
-    public void LogoutPositive() throws DataAccessException {
+    public void logoutPositive() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
 
         userService.register(request);
@@ -114,7 +114,7 @@ public class UnitTests {
     @Test
     @Order(1)
     @DisplayName("Logout Negative")
-    public void LogoutNegative() throws DataAccessException {
+    public void logoutNegative() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
 
         userService.register(request);
@@ -135,7 +135,7 @@ public class UnitTests {
     @Test
     @Order(1)
     @DisplayName("Create Game Positive")
-    public void CreateGamePositive() throws DataAccessException {
+    public void createGamePositive() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
 
         userService.register(request);
@@ -151,7 +151,7 @@ public class UnitTests {
     @Test
     @Order(1)
     @DisplayName("Create Game Negative")
-    public void CreateGameNegative() throws DataAccessException {
+    public void createGameNegative() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
 
         userService.register(request);
@@ -166,7 +166,7 @@ public class UnitTests {
     @Test
     @Order(1)
     @DisplayName("Join Game Positive")
-    public void JoinGamePositive() throws DataAccessException {
+    public void joinGamePositive() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
 
         userService.register(request);
@@ -188,7 +188,7 @@ public class UnitTests {
     @Test
     @Order(1)
     @DisplayName("Join Game Negative")
-    public void JoinGameNegative() throws DataAccessException {
+    public void joinGameNegative() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
 
         userService.register(request);
@@ -210,7 +210,7 @@ public class UnitTests {
     @Test
     @Order(1)
     @DisplayName("List Games Positive")
-    public void ListGamesPositive() throws DataAccessException {
+    public void listGamesPositive() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
 
         userService.register(request);
@@ -228,7 +228,7 @@ public class UnitTests {
     @Test
     @Order(1)
     @DisplayName("List Games Negative")
-    public void ListGamesNegative() throws DataAccessException {
+    public void listGamesNegative() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
 
         userService.register(request);
@@ -242,7 +242,7 @@ public class UnitTests {
     @Test
     @Order(1)
     @DisplayName("Clear Database")
-    public void ClearDatabase() throws DataAccessException {
+    public void clearDatabase() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
 
         userService.register(request);
