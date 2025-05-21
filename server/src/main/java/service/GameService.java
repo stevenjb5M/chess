@@ -5,6 +5,8 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
+import java.util.Collection;
+
 public class GameService {
 
     private final GameDAO gameDAO;
@@ -35,6 +37,26 @@ public class GameService {
         } else {
             throw new BadRequestException();
         }
+    }
+
+    public Collection<GameData> listGames() throws DataAccessException {
+        return gameDAO.listGames();
+    }
+
+    public void clearGames() throws DataAccessException {
+        gameDAO.clearGames();
+    }
+
+    public String getBlackPlayerUsername(Integer gameID) throws DataAccessException {
+        GameData data = gameDAO.getGame(gameID);
+
+        return data.blackUsername();
+    }
+
+    public String getWhitePlayerUsername(Integer gameID) throws DataAccessException {
+        GameData data = gameDAO.getGame(gameID);
+
+        return data.whiteUsername();
     }
 
 

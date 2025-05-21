@@ -5,8 +5,7 @@ import model.GameData;
 import service.CreateGameResult;
 import service.JoinGameRequest;
 
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 
 public class MemoryGameDAQ implements GameDAO {
     final private HashMap<Integer, GameData> games = new HashMap<>();
@@ -52,6 +51,17 @@ public class MemoryGameDAQ implements GameDAO {
             }
         }
         return data;
+    }
+
+    @Override
+    public Collection<GameData> listGames() throws DataAccessException {
+        Collection<GameData> gamesToAdd = new ArrayList<>(games.values());
+        return gamesToAdd;
+    }
+
+    @Override
+    public void clearGames() throws DataAccessException {
+        games.clear();
     }
 
 

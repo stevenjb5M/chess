@@ -2,9 +2,11 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.*;
+import model.GameData;
 import service.*;
 import spark.*;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class Server {
@@ -32,7 +34,7 @@ public class Server {
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
-        Spark.get("/game", this::getGame);
+        Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
         Spark.delete("/db", this::clear);
@@ -162,8 +164,32 @@ public class Server {
         }
     }
 
+    private Object listGames(Request req, Response res) throws DataAccessException {
+        try {
+            String authToken = req.headers("authorization");
+
+            if (authToken == null || !authService.checkIfAuthExisits(authToken)) {
+                res.status(401);
+                return errorHandler(new Exception(new UnauthorizedException()), req, res);
+            }
+
+            Collection<GameData> games = this.gameService.listGames();
+            ListGamesResult result = new ListGamesResult(games);
+            return new Gson().toJson(result);
+
+        } catch (BadRequestException e) {
+            res.status(400);
+            return errorHandler(new Exception(e.getMessage()), req, res);
+        } catch (UsernameTakenException e) {
+            res.status(403);
+            return errorHandler(new Exception(e.getMessage()), req, res);
+        }
+    }
+
     private Object clear(Request req, Response res) throws DataAccessException {
         userService.clearUsers();
+        gameService.clearGames();
+        authService.clearAuths();
         res.status(200);
         return "";
 

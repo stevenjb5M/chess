@@ -3,6 +3,7 @@ package service;
 import chess.ChessGame;
 import dataAccess.*;
 import model.AuthData;
+import model.GameData;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
 import passoff.server.TestServerFacade;
@@ -168,6 +169,107 @@ public class UnitTests {
         });
     }
 
+    @Test
+    @Order(1)
+    @DisplayName("Join Game Positive")
+    public void JoinGamePositive() throws DataAccessException {
+        RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
 
+        userService.register(request);
+
+        CreateGameRequest createGameRequest = new CreateGameRequest("test");
+
+        CreateGameResult result = gameService.createGame(createGameRequest);
+
+        JoinGameRequest joinRequest = new JoinGameRequest(ChessGame.TeamColor.BLACK, result.getGameID());
+
+        gameService.joinGame(joinRequest, "Steven");
+
+        String blackUsername = gameService.getBlackPlayerUsername(result.getGameID());
+
+        Assertions.assertNotNull(blackUsername);
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("Join Game Negative")
+    public void JoinGameNegative() throws DataAccessException {
+        RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
+
+        userService.register(request);
+
+        CreateGameRequest createGameRequest = new CreateGameRequest("test");
+
+        CreateGameResult result = gameService.createGame(createGameRequest);
+
+        JoinGameRequest joinRequest = new JoinGameRequest(ChessGame.TeamColor.BLACK, result.getGameID());
+
+        gameService.joinGame(joinRequest, "Steven");
+
+        String whiteUsername = gameService.getWhitePlayerUsername(result.getGameID());
+
+        Assertions.assertNull(whiteUsername);
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("List Games Positive")
+    public void ListGamesPositive() throws DataAccessException {
+        RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
+
+        userService.register(request);
+
+        CreateGameRequest createGameRequest = new CreateGameRequest("test");
+
+        CreateGameResult result = gameService.createGame(createGameRequest);
+
+        Collection<GameData> games = gameService.listGames();
+
+        Assertions.assertNotNull(games);
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("List Games Negative")
+    public void ListGamesNegative() throws DataAccessException {
+        RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
+
+        userService.register(request);
+
+        Collection<GameData> games = gameService.listGames();
+
+        Assertions.assertNotNull(games);
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("Clear Database")
+    public void ClearDatabase() throws DataAccessException {
+        RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
+
+        userService.register(request);
+
+        CreateGameRequest createGameRequest = new CreateGameRequest("test");
+
+        CreateGameResult result = gameService.createGame(createGameRequest);
+
+        JoinGameRequest joinRequest = new JoinGameRequest(ChessGame.TeamColor.BLACK, result.getGameID());
+
+        gameService.joinGame(joinRequest, "Steven");
+
+        String whiteUsername = gameService.getWhitePlayerUsername(result.getGameID());
+
+        userService.clearUsers();
+        gameService.clearGames();
+        authService.clearAuths();
+
+        Collection<GameData> games = gameService.listGames();
+
+        Assertions.assertTrue(games.isEmpty());
+    }
 
 }

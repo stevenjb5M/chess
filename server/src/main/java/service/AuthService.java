@@ -37,5 +37,9 @@ public class AuthService {
         return authDAO.getUserByAuth(authToken);
     }
 
+    public void clearAuths() throws DataAccessException {
+        authDAO.clearAuths();
+    }
+
 }
 
