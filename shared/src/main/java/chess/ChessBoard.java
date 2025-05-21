@@ -58,14 +58,14 @@ public class ChessBoard {
      */
     public void resetBoard() {
         squares = new ChessPiece[8][8];
-        CreatePawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 1);
-        CreatePawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 2);
-        CreatePawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 3);
-        CreatePawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 4);
-        CreatePawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 5);
-        CreatePawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 6);
-        CreatePawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 7);
-        CreatePawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 8);
+        createPawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 1);
+        createPawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 2);
+        createPawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 3);
+        createPawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 4);
+        createPawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 5);
+        createPawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 6);
+        createPawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 7);
+        createPawn(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN, 2, 8);
         ChessPiece whiteKing = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
         ChessPosition whiteKingPos = new ChessPosition(1, 5);
         addPiece(whiteKingPos, whiteKing);
@@ -96,14 +96,14 @@ public class ChessBoard {
         ChessPosition whiteBishop2Pos = new ChessPosition(1, 6);
         addPiece(whiteBishop2Pos, whiteBishop2);
 
-        CreatePawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 1);
-        CreatePawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 2);
-        CreatePawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 3);
-        CreatePawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 4);
-        CreatePawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 5);
-        CreatePawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 6);
-        CreatePawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 7);
-        CreatePawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 8);
+        createPawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 1);
+        createPawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 2);
+        createPawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 3);
+        createPawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 4);
+        createPawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 5);
+        createPawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 6);
+        createPawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 7);
+        createPawn(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN, 7, 8);
 
         ChessPiece blackKing = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
         ChessPosition blackKingPos = new ChessPosition(8, 5);
@@ -138,7 +138,7 @@ public class ChessBoard {
         addPiece(blackBishop2Pos, blackBishop2);
     }
 
-    private void CreatePawn(ChessGame.TeamColor color, ChessPiece.PieceType type, int row, int col) {
+    private void createPawn(ChessGame.TeamColor color, ChessPiece.PieceType type, int row, int col) {
         ChessPiece whitePawn1 = new ChessPiece(color, type);
         ChessPosition whitePawn1Pos = new ChessPosition(row, col);
         addPiece(whitePawn1Pos, whitePawn1);
