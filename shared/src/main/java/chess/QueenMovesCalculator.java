@@ -24,17 +24,17 @@ public class QueenMovesCalculator {
         for (int[] dir: directions) {
             for (int i = 1; i < 8; i++) {
                 ChessPosition pos1 = new ChessPosition(myPosition.getRow() + dir[0] * i, myPosition.getColumn() + dir[1] * i);
-                ChessMove move1 = new ChessMove(myPosition, pos1, null);
+                ChessMove move2 = new ChessMove(myPosition, pos1, null);
                 if (!checkBounds(pos1)) {
                     break;
                 }
-                    ChessPiece currentPiece = board.getPiece(move1.getEndPosition());
+                    ChessPiece currentPiece = board.getPiece(move2.getEndPosition());
 
                     if (currentPiece == null) {
-                        possibleMoves.add(move1);
+                        possibleMoves.add(move2);
                     } else {
                         if (currentPiece.getTeamColor() != color) {
-                            possibleMoves.add(move1);
+                            possibleMoves.add(move2);
                             break;
                         } else {
                             break;
