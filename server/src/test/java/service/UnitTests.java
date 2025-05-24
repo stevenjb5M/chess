@@ -20,7 +20,7 @@ public class UnitTests {
 
     @BeforeAll
     public static void init() {
-        MemoryUserDAO userDAO = new MemoryUserDAO();
+        SQLUserDAO userDAO = new SQLUserDAO();
         MemoryAuthDAO authDAQ = new MemoryAuthDAO();
         MemoryGameDAQ gameDAQ = new MemoryGameDAQ();
         authService = new AuthService(authDAQ);

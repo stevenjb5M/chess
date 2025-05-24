@@ -12,15 +12,21 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class SQLUserDAO implements UserDAO {
-    final private HashMap<String, UserData> users = new HashMap<>();
 
-    public SQLUserDAO() throws DataAccessException {
-        configureDatabase();
+    public SQLUserDAO() {
+        try {
+            example();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public UserData addUser(UserData user) throws DataAccessException {
-        UserData existingUser = users.get(user.username());
+        //UserData existingUser = users.get(user.username());
+        UserData existingUser = new UserData("test", "test", "email");
 
         if (existingUser == null) {
             var statement = "INSERT INTO user (username, json) VALUES (?, ?, ?)";
@@ -44,6 +50,17 @@ public class SQLUserDAO implements UserDAO {
     @Override
     public void clearUsers() throws DataAccessException {
 
+    }
+
+
+    public void example() throws Exception {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("SELECT 1+1")) {
+                var rs = preparedStatement.executeQuery();
+                rs.next();
+                System.out.println(rs.getInt(1));
+            }
+        }
     }
 
     private void configureDatabase() throws DataAccessException {
@@ -130,7 +147,7 @@ public class SQLUserDAO implements UserDAO {
 
                 return 0;
             }
-        } catch (SQLException e) {
+        } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("unable to update database: %s, %s");
         }
     }

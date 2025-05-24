@@ -5,7 +5,6 @@ import dataaccess.*;
 import model.GameData;
 import service.*;
 import spark.*;
-
 import java.util.Collection;
 import java.util.Map;
 
@@ -16,7 +15,7 @@ public class Server {
 
 
     public Server() {
-        MemoryUserDAO userDAO = new MemoryUserDAO();
+        SQLUserDAO userDAO = new SQLUserDAO();
         MemoryAuthDAO authDAQ = new MemoryAuthDAO();
         MemoryGameDAQ gameDAQ = new MemoryGameDAQ();
         this.authService = new AuthService(authDAQ);
