@@ -15,6 +15,8 @@ public class SQLUserDAO implements UserDAO {
 
     public SQLUserDAO() {
         try {
+            DatabaseManager.createDatabase();
+            configureDatabase();
             example();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
@@ -26,10 +28,10 @@ public class SQLUserDAO implements UserDAO {
     @Override
     public UserData addUser(UserData user) throws DataAccessException {
         //UserData existingUser = users.get(user.username());
-        UserData existingUser = new UserData("test", "test", "email");
+        UserData existingUser = getUser(user.username());
 
         if (existingUser == null) {
-            var statement = "INSERT INTO user (username, json) VALUES (?, ?, ?)";
+            var statement = "INSERT INTO user (username, json) VALUES (?, ?)";
             var json = new Gson().toJson(user);
             var id = executeUpdate(statement, user.username(), json);
 
@@ -44,7 +46,27 @@ public class SQLUserDAO implements UserDAO {
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        return null;
+            try (var conn = DatabaseManager.getConnection()) {
+                var statement = "SELECT username, json FROM user WHERE username=?";
+                try (var ps = conn.prepareStatement(statement)) {
+                    ps.setString(1,username);
+                    try (var rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            return readUser(rs);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                throw new DataAccessException("");
+            }
+            return null;
+    }
+
+    private UserData readUser(ResultSet rs) throws SQLException {
+        var username = rs.getString("username");
+        var json = rs.getString("json");
+        UserData userData = new Gson().fromJson(json, UserData.class);
+        return userData;
     }
 
     @Override
@@ -154,14 +176,9 @@ public class SQLUserDAO implements UserDAO {
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  pet (
-              `id` int NOT NULL AUTO_INCREMENT,
-              `name` varchar(256) NOT NULL,
-              `type` ENUM('CAT', 'DOG', 'FISH', 'FROG', 'ROCK') DEFAULT 'CAT',
-              `json` TEXT DEFAULT NULL,
-              PRIMARY KEY (`id`),
-              INDEX(type),
-              INDEX(name)
+            CREATE TABLE IF NOT EXISTS  user (
+              username VARCHAR(256) NOT NULL PRIMARY KEY,
+              json TEXT
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };

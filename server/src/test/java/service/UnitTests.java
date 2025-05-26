@@ -38,11 +38,11 @@ public class UnitTests {
     @Order(1)
     @DisplayName("Register Positive")
     public void registerPositive() throws DataAccessException {
-        RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
+        RegisterRequest request = new RegisterRequest("steven1", "test", "steven@gmail.com");
 
         userService.register(request);
 
-        Assertions.assertNotNull(userService.getUser("Steven"));
+        Assertions.assertNotNull(userService.getUser("steven1"));
 
     }
 
@@ -50,7 +50,7 @@ public class UnitTests {
     @Order(1)
     @DisplayName("Register Negative")
     public void registerNegative() throws DataAccessException {
-        RegisterRequest request = new RegisterRequest("Steven", null, "steven@gmail.com");
+        RegisterRequest request = new RegisterRequest("testuser", null, "steven@gmail.com");
 
         Assertions.assertThrows(BadRequestException.class, () -> {
             userService.register(request);
