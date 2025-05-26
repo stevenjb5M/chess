@@ -21,7 +21,7 @@ public class UnitTests {
     @BeforeAll
     public static void init() {
         SQLUserDAO userDAO = new SQLUserDAO();
-        MemoryAuthDAO authDAQ = new MemoryAuthDAO();
+        SQLAuthDAO authDAQ = new SQLAuthDAO();
         MemoryGameDAQ gameDAQ = new MemoryGameDAQ();
         authService = new AuthService(authDAQ);
         userService = new UserService(userDAO, authService);
@@ -38,11 +38,11 @@ public class UnitTests {
     @Order(1)
     @DisplayName("Register Positive")
     public void registerPositive() throws DataAccessException {
-        RegisterRequest request = new RegisterRequest("steven1", "test", "steven@gmail.com");
+        RegisterRequest request = new RegisterRequest("steven3", "test", "steven@gmail.com");
 
         userService.register(request);
 
-        Assertions.assertNotNull(userService.getUser("steven1"));
+        Assertions.assertNotNull(userService.getUser("steven3"));
 
     }
 
@@ -50,7 +50,7 @@ public class UnitTests {
     @Order(1)
     @DisplayName("Register Negative")
     public void registerNegative() throws DataAccessException {
-        RegisterRequest request = new RegisterRequest("testuser", null, "steven@gmail.com");
+        RegisterRequest request = new RegisterRequest("testuser2", null, "steven@gmail.com");
 
         Assertions.assertThrows(BadRequestException.class, () -> {
             userService.register(request);
@@ -62,11 +62,11 @@ public class UnitTests {
     @Order(1)
     @DisplayName("Login Positive")
     public void loginPositive() throws DataAccessException {
-        RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
+        RegisterRequest request = new RegisterRequest("steven9", "test", "steven@gmail.com");
 
         userService.register(request);
 
-        LoginRequest requestLogin = new LoginRequest("Steven", "test");
+        LoginRequest requestLogin = new LoginRequest("steven9", "test");
 
         LoginResult result =  userService.login(requestLogin);
 
@@ -78,12 +78,12 @@ public class UnitTests {
     @Order(1)
     @DisplayName("Login Negative")
     public void loginNegative() throws DataAccessException {
-        RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
+        RegisterRequest request = new RegisterRequest("Steven12", "test", "steven@gmail.com");
 
         userService.register(request);
 
 
-        LoginRequest requestLogin = new LoginRequest("Steven", "test123");
+        LoginRequest requestLogin = new LoginRequest("Steven12", "test123");
 
         Assertions.assertThrows(UnauthorizedException.class, () -> {
             userService.login(requestLogin);
@@ -95,11 +95,11 @@ public class UnitTests {
     @Order(1)
     @DisplayName("Logout Positive")
     public void logoutPositive() throws DataAccessException {
-        RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
+        RegisterRequest request = new RegisterRequest("Steven11", "test", "steven@gmail.com");
 
         userService.register(request);
 
-        LoginRequest requestLogin = new LoginRequest("Steven", "test");
+        LoginRequest requestLogin = new LoginRequest("Steven11", "test");
 
         LoginResult loginResult = userService.login(requestLogin);
 
@@ -115,11 +115,11 @@ public class UnitTests {
     @Order(1)
     @DisplayName("Logout Negative")
     public void logoutNegative() throws DataAccessException {
-        RegisterRequest request = new RegisterRequest("Steven", "test", "steven@gmail.com");
+        RegisterRequest request = new RegisterRequest("Steven13", "test", "steven@gmail.com");
 
         userService.register(request);
 
-        LoginRequest requestLogin = new LoginRequest("Steven", "test");
+        LoginRequest requestLogin = new LoginRequest("Steven13", "test");
 
         LoginResult loginResult = userService.login(requestLogin);
 

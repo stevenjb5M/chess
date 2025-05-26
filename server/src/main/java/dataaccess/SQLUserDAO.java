@@ -17,7 +17,7 @@ public class SQLUserDAO implements UserDAO {
         try {
             DatabaseManager.createDatabase();
             configureDatabase();
-            example();
+            //example();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         } catch (Exception e) {
@@ -27,7 +27,6 @@ public class SQLUserDAO implements UserDAO {
 
     @Override
     public UserData addUser(UserData user) throws DataAccessException {
-        //UserData existingUser = users.get(user.username());
         UserData existingUser = getUser(user.username());
 
         if (existingUser == null) {
@@ -39,9 +38,6 @@ public class SQLUserDAO implements UserDAO {
         } else {
             throw new UsernameTakenException("Error: already taken");
         }
-
-        //not sure if we need this
-        //return new UserData(id, pet.name(), pet.type());
     }
 
     @Override
@@ -75,15 +71,15 @@ public class SQLUserDAO implements UserDAO {
     }
 
 
-    public void example() throws Exception {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("SELECT 1+1")) {
-                var rs = preparedStatement.executeQuery();
-                rs.next();
-                System.out.println(rs.getInt(1));
-            }
-        }
-    }
+//    public void example() throws Exception {
+//        try (var conn = DatabaseManager.getConnection()) {
+//            try (var preparedStatement = conn.prepareStatement("SELECT 1+1")) {
+//                var rs = preparedStatement.executeQuery();
+//                rs.next();
+//                System.out.println(rs.getInt(1));
+//            }
+//        }
+//    }
 
     private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();

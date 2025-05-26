@@ -16,7 +16,7 @@ public class Server {
 
     public Server() {
         SQLUserDAO userDAO = new SQLUserDAO();
-        MemoryAuthDAO authDAQ = new MemoryAuthDAO();
+        SQLAuthDAO authDAQ = new SQLAuthDAO();
         MemoryGameDAQ gameDAQ = new MemoryGameDAQ();
         this.authService = new AuthService(authDAQ);
         this.userService = new UserService(userDAO, authService);
