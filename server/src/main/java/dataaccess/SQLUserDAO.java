@@ -52,8 +52,8 @@ public class SQLUserDAO implements UserDAO {
                         }
                     }
                 }
-            } catch (Exception e) {
-                throw new DataAccessException("");
+            } catch (SQLException | RuntimeException e) {
+                throw new InternalServerException("Internal Server Error");
             }
             return null;
     }
@@ -67,7 +67,8 @@ public class SQLUserDAO implements UserDAO {
 
     @Override
     public void clearUsers() throws DataAccessException {
-
+        var statement = "TRUNCATE user";
+        executeUpdate(statement);
     }
 
 
@@ -166,7 +167,7 @@ public class SQLUserDAO implements UserDAO {
                 return 0;
             }
         } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException("unable to update database: %s, %s");
+            throw new DataAccessException("unable to update database");
         }
     }
 

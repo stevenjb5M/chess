@@ -87,14 +87,14 @@ public class SQLGameDAO implements GameDAO {
         if (request.getPlayerColor() == ChessGame.TeamColor.WHITE) {
             if (data.whiteUsername() == null) {
                 GameData newGame = new GameData(data.gameID(), username, data.blackUsername(), data.gameName(), data.game());
-                addGame(newGame);
+                updateGame(newGame);
             } else {
                 throw new UsernameTakenException();
             }
         } else {
             if (data.blackUsername() == null) {
                 GameData newGame = new GameData(data.gameID(), data.whiteUsername(), username, data.gameName(), data.game());
-                addGame(newGame);
+                updateGame(newGame);
             } else {
                 throw new UsernameTakenException();
             }
@@ -175,4 +175,21 @@ public class SQLGameDAO implements GameDAO {
             """
     };
 
+    private void updateGame(GameData game) throws DataAccessException {
+        String sql = "UPDATE game set gameName = ?, json = ? WHERE gameId = ?";
+
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, game.gameName());
+            var json = new Gson().toJson(game);
+            ps.setString(2, json); // ChessGame to JSON
+            ps.setInt(3, game.gameID());
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            throw new DataAccessException("Error updating game", e);
+        }
+    }
 }

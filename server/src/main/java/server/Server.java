@@ -17,7 +17,7 @@ public class Server {
     public Server() {
         SQLUserDAO userDAO = new SQLUserDAO();
         SQLAuthDAO authDAQ = new SQLAuthDAO();
-        MemoryGameDAQ gameDAQ = new MemoryGameDAQ();
+        SQLGameDAO gameDAQ = new SQLGameDAO();
         this.authService = new AuthService(authDAQ);
         this.userService = new UserService(userDAO, authService);
 
@@ -73,6 +73,9 @@ public class Server {
         } catch (BadRequestException e) {
             res.status(400);
             return errorHandler(new Exception(e.getMessage()), req, res);
+        } catch (InternalServerException e) {
+            res.status(500);
+            return errorHandler(new Exception(e.getMessage()), req, res);
         }
     }
 
@@ -89,6 +92,9 @@ public class Server {
             return errorHandler(new Exception(e.getMessage()), req, res);
         } catch (UnauthorizedException e) {
             res.status(401);
+            return errorHandler(new Exception(e.getMessage()), req, res);
+        } catch (InternalServerException e) {
+            res.status(500);
             return errorHandler(new Exception(e.getMessage()), req, res);
         }
 
@@ -109,6 +115,9 @@ public class Server {
 
         } catch (UnauthorizedException e) {
             res.status(401);
+            return errorHandler(new Exception(e.getMessage()), req, res);
+        } catch (InternalServerException e) {
+            res.status(500);
             return errorHandler(new Exception(e.getMessage()), req, res);
         }
     }
@@ -135,6 +144,9 @@ public class Server {
         } catch (BadRequestException e) {
             res.status(400);
             return errorHandler(new Exception(e.getMessage()), req, res);
+        } catch (InternalServerException e) {
+            res.status(500);
+            return errorHandler(new Exception(e.getMessage()), req, res);
         }
 
     }
@@ -160,6 +172,9 @@ public class Server {
         } catch (UsernameTakenException e) {
             res.status(403);
             return errorHandler(new Exception(e.getMessage()), req, res);
+        } catch (InternalServerException e) {
+            res.status(500);
+            return errorHandler(new Exception(e.getMessage()), req, res);
         }
     }
 
@@ -182,16 +197,23 @@ public class Server {
         } catch (UsernameTakenException e) {
             res.status(403);
             return errorHandler(new Exception(e.getMessage()), req, res);
+        } catch (InternalServerException e) {
+            res.status(500);
+            return errorHandler(new Exception(e.getMessage()), req, res);
         }
     }
 
     private Object clear(Request req, Response res) throws DataAccessException {
-        userService.clearUsers();
-        gameService.clearGames();
-        authService.clearAuths();
-        res.status(200);
-        return "";
-
+       try {
+           userService.clearUsers();
+           gameService.clearGames();
+           authService.clearAuths();
+           res.status(200);
+           return "";
+       } catch (DataAccessException e) {
+            res.status(500);
+            return errorHandler(new Exception(e.getMessage()), req, res);
+        }
     }
 
 }

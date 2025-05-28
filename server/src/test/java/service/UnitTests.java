@@ -22,7 +22,7 @@ public class UnitTests {
     public static void init() {
         SQLUserDAO userDAO = new SQLUserDAO();
         SQLAuthDAO authDAQ = new SQLAuthDAO();
-        MemoryGameDAQ gameDAQ = new MemoryGameDAQ();
+        SQLGameDAO gameDAQ = new SQLGameDAO();
         authService = new AuthService(authDAQ);
         userService = new UserService(userDAO, authService);
         gameService = new GameService(gameDAQ);
@@ -31,7 +31,8 @@ public class UnitTests {
     @BeforeEach
     public void setup() throws DataAccessException {
         userService.clearUsers();
-
+        authService.clearAuths();
+        gameService.clearGames();
     }
 
     @Test
