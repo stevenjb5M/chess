@@ -16,7 +16,7 @@ public class SQLUserDAO implements UserDAO {
     public SQLUserDAO() {
         try {
             DatabaseManager.createDatabase();
-            configureDatabase();
+            DatabaseManager.configureDatabase(createStatements);
             //example();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
@@ -81,19 +81,6 @@ public class SQLUserDAO implements UserDAO {
 //            }
 //        }
 //    }
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("");
-        }
-    }
 
 
 //    public Pet getPet(int id) throws ResponseException {
