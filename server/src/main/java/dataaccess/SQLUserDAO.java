@@ -71,69 +71,6 @@ public class SQLUserDAO implements UserDAO {
         executeUpdate(statement);
     }
 
-
-//    public void example() throws Exception {
-//        try (var conn = DatabaseManager.getConnection()) {
-//            try (var preparedStatement = conn.prepareStatement("SELECT 1+1")) {
-//                var rs = preparedStatement.executeQuery();
-//                rs.next();
-//                System.out.println(rs.getInt(1));
-//            }
-//        }
-//    }
-
-
-//    public Pet getPet(int id) throws ResponseException {
-//        try (var conn = DatabaseManager.getConnection()) {
-//            var statement = "SELECT id, json FROM pet WHERE id=?";
-//            try (var ps = conn.prepareStatement(statement)) {
-//                ps.setInt(1, id);
-//                try (var rs = ps.executeQuery()) {
-//                    if (rs.next()) {
-//                        return readPet(rs);
-//                    }
-//                }
-//            }
-//        } catch (Exception e) {
-//            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
-//        }
-//        return null;
-//    }
-//
-//    public Collection<Pet> listPets() throws ResponseException {
-//        var result = new ArrayList<Pet>();
-//        try (var conn = DatabaseManager.getConnection()) {
-//            var statement = "SELECT id, json FROM pet";
-//            try (var ps = conn.prepareStatement(statement)) {
-//                try (var rs = ps.executeQuery()) {
-//                    while (rs.next()) {
-//                        result.add(readPet(rs));
-//                    }
-//                }
-//            }
-//        } catch (Exception e) {
-//            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
-//        }
-//        return result;
-//    }
-//
-//    public void deletePet(Integer id) throws ResponseException {
-//        var statement = "DELETE FROM pet WHERE id=?";
-//        executeUpdate(statement, id);
-//    }
-//
-//    public void deleteAllPets() throws ResponseException {
-//        var statement = "TRUNCATE pet";
-//        executeUpdate(statement);
-//    }
-//
-//    private Pet readPet(ResultSet rs) throws SQLException {
-//        var id = rs.getInt("id");
-//        var json = rs.getString("json");
-//        var pet = new Gson().fromJson(json, Pet.class);
-//        return pet.setId(id);
-//    }
-
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {

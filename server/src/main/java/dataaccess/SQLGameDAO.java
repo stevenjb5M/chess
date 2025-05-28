@@ -19,7 +19,7 @@ public class SQLGameDAO implements GameDAO {
     public SQLGameDAO() {
         try {
             DatabaseManager.createDatabase();
-            configureDatabase();
+            DatabaseManager.configureDatabase(createStatements);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         } catch (Exception e) {
@@ -152,18 +152,6 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("");
-        }
-    }
 
     private final String[] createStatements = {
             """
