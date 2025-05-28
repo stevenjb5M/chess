@@ -12,11 +12,11 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class SQLAuthDAO implements AuthDAO {
-    final private HashMap<String, AuthData> auths = new HashMap<>();
 
     public SQLAuthDAO() {
         try {
             DatabaseManager.createDatabase();
+
             DatabaseManager.configureDatabase(createStatements);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);

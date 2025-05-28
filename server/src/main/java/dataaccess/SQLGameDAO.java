@@ -19,6 +19,8 @@ public class SQLGameDAO implements GameDAO {
     public SQLGameDAO() {
         try {
             DatabaseManager.createDatabase();
+
+
             DatabaseManager.configureDatabase(createStatements);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
