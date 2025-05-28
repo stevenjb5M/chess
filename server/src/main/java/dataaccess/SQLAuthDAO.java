@@ -17,7 +17,7 @@ public class SQLAuthDAO implements AuthDAO {
     public SQLAuthDAO() {
         try {
             DatabaseManager.createDatabase();
-            configureDatabase();
+            DatabaseManager.configureDatabase(createStatements);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         } catch (Exception e) {
@@ -120,19 +120,6 @@ public class SQLAuthDAO implements AuthDAO {
             }
         } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("unable to update database:", e);
-        }
-    }
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("");
         }
     }
 
