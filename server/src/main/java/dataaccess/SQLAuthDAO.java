@@ -44,7 +44,7 @@ public class SQLAuthDAO implements AuthDAO {
                 return true;
             }
         } catch (Exception e) {
-            throw new DataAccessException("");
+            throw new InternalServerException("");
         }
         return false;
     }
