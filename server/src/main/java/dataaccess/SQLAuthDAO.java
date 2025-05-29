@@ -14,15 +14,7 @@ import static java.sql.Types.NULL;
 public class SQLAuthDAO implements AuthDAO {
 
     public SQLAuthDAO() {
-        try {
-            DatabaseManager.createDatabase();
-
-            DatabaseManager.configureDatabase(createStatements);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        DatabaseManager.initDAO(createStatements);
     }
 
 

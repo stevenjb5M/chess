@@ -66,6 +66,19 @@ public class DatabaseManager {
         }
     }
 
+    public static void initDAO(String[] createStatements) {
+        try {
+            DatabaseManager.createDatabase();
+            DatabaseManager.configureDatabase(createStatements);
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 
     private static void loadPropertiesFromResources() {
         try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
