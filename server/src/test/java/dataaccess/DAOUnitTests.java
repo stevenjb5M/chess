@@ -74,4 +74,44 @@ public class DAOUnitTests {
 
     }
 
+    @Test
+    @Order(1)
+    @DisplayName("getUser Positive")
+    public void getUserPositive() throws DataAccessException {
+        String hashedPassword = BCrypt.hashpw("password", BCrypt.gensalt());
+
+        UserData userData = new UserData("steven", hashedPassword, "steven@gmail.com");
+
+        userDAO.addUser(userData);
+
+
+        Assertions.assertNotNull(userDAO.getUser("steven"));
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("getUser Negative")
+    public void getUserNegative() throws DataAccessException {
+
+        Assertions.assertNull(userDAO.getUser("Steven12345"));
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("clearUsers")
+    public void clearUsers() throws DataAccessException {
+        String hashedPassword = BCrypt.hashpw("password", BCrypt.gensalt());
+
+        UserData userData = new UserData("steven", hashedPassword, "steven@gmail.com");
+
+        userDAO.addUser(userData);
+
+        userDAO.clearUsers();
+
+
+        Assertions.assertNull(userDAO.getUser("steven"));
+
+    }
 }
