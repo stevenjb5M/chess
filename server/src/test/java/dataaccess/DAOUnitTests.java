@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -146,11 +147,11 @@ public class DAOUnitTests {
     @DisplayName("getGame Positive")
     public void getGamePositive() throws DataAccessException {
 
-        GameData gameData = new GameData(1234, "", "", "Game1", new ChessGame());
+        GameData gameData = new GameData(1234, "", "", "Game23", new ChessGame());
 
         gameDAO.addGame(gameData);
 
-        Assertions.assertNotNull(gameDAO.getGame("Game1"));
+        Assertions.assertNotNull(gameDAO.getGame("Game23"));
 
     }
 
@@ -263,6 +264,98 @@ public class DAOUnitTests {
         int len = gameDAO.listGames().size();
 
         Assertions.assertEquals(len, 0);
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("addAuthPositive")
+    public void addAuthPositive() throws DataAccessException {
+        AuthData authData = new AuthData("fsljasld", "steven");
+
+        authDAO.addAuthData(authData);
+
+        Assertions.assertTrue(authDAO.checkIfAuthExists("fsljasld"));
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("addAuthNegative")
+    public void addAuthNegative() throws DataAccessException {
+        AuthData authData = new AuthData("fsljasld", "steven");
+
+        authDAO.addAuthData(authData);
+
+        Assertions.assertFalse(authDAO.checkIfAuthExists("fasld"));
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("checkAuthPositive")
+    public void checkAuthPositive() throws DataAccessException {
+        AuthData authData = new AuthData("fsljasldf", "steven");
+
+        authDAO.addAuthData(authData);
+
+        Assertions.assertTrue(authDAO.checkIfAuthExists("fsljasldf"));
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("checkAuthNegative")
+    public void checkAuthNegative() throws DataAccessException {
+        AuthData authData = new AuthData("fsljasldf", "steven");
+
+        authDAO.addAuthData(authData);
+
+        Assertions.assertFalse(authDAO.checkIfAuthExists("fasldf"));
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("getAuthPositive")
+    public void getAuthPositive() throws DataAccessException {
+        AuthData authData = new AuthData("fsljasldf", "steven");
+
+        authDAO.addAuthData(authData);
+
+        Assertions.assertNotNull(authDAO.getUserByAuth("fsljasldf"));
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("getAuthNegative")
+    public void getAuthNegative() throws DataAccessException {
+        AuthData authData = new AuthData("fsljasldf", "steven");
+
+        authDAO.addAuthData(authData);
+
+
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            authDAO.getUserByAuth("3");
+        });
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("clearAuths")
+    public void clearAuths() throws DataAccessException {
+        AuthData authData = new AuthData("fsljasldf", "steven");
+
+        authDAO.addAuthData(authData);
+
+
+        authDAO.clearAuths();
+
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            authDAO.getUserByAuth("fsljasldf");
+        });
 
     }
 
