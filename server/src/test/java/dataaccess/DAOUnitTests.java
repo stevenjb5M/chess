@@ -114,4 +114,156 @@ public class DAOUnitTests {
         Assertions.assertNull(userDAO.getUser("steven"));
 
     }
+
+    @Test
+    @Order(1)
+    @DisplayName("addGame Positive")
+    public void addGamePositive() throws DataAccessException {
+
+        GameData gameData = new GameData(1234, "", "", "Game1", new ChessGame());
+
+        gameDAO.addGame(gameData);
+
+        Assertions.assertNotNull(gameDAO.getGame("Game1"));
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("addGame Negative")
+    public void addGameNegative() throws DataAccessException {
+
+        GameData gameData = new GameData(1234, "", "", "Game1", new ChessGame());
+
+        gameDAO.addGame(gameData);
+
+        Assertions.assertNull(gameDAO.getGame("Game12"));
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("getGame Positive")
+    public void getGamePositive() throws DataAccessException {
+
+        GameData gameData = new GameData(1234, "", "", "Game1", new ChessGame());
+
+        gameDAO.addGame(gameData);
+
+        Assertions.assertNotNull(gameDAO.getGame("Game1"));
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("getGame Negative")
+    public void getGameNegative() throws DataAccessException {
+
+        Assertions.assertNull(gameDAO.getGame("Game121"));
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("joinGame Positive")
+    public void joinGamePositive() throws DataAccessException {
+
+        GameData gameData = new GameData(1234, null, "", "Game12", new ChessGame());
+
+        gameDAO.addGame(gameData);
+
+        GameData gameData1 = gameDAO.getGame("Game12");
+
+        JoinGameRequest joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameData1.gameID());
+
+        gameDAO.joinGame(joinGameRequest, "Steven");
+
+
+        GameData newGame = gameDAO.getGame(gameData1.gameID());
+
+        Assertions.assertTrue(newGame.whiteUsername().equals("Steven"));
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("joinGame Negative")
+    public void joinGameNegative() throws DataAccessException {
+
+        GameData gameData = new GameData(1234, null, "", "Game12", new ChessGame());
+
+        gameDAO.addGame(gameData);
+
+        GameData gameData1 = gameDAO.getGame("Game12");
+
+        JoinGameRequest joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.WHITE, null);
+
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            gameDAO.joinGame(joinGameRequest, "Steven");
+        });
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("listGame Positive")
+    public void listGamePositive() throws DataAccessException {
+
+        GameData gameData = new GameData(1234, null, "", "Game123", new ChessGame());
+
+        gameDAO.addGame(gameData);
+
+        GameData gameData1 = new GameData(1234, null, "", "Game1234", new ChessGame());
+
+        gameDAO.addGame(gameData);
+        gameDAO.addGame(gameData1);
+
+        int len = gameDAO.listGames().size();
+
+        Assertions.assertEquals(len, 3);
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("listGame Negative")
+    public void listGameNegative() throws DataAccessException {
+
+        GameData gameData = new GameData(1234, null, "", "Game123", new ChessGame());
+
+        gameDAO.addGame(gameData);
+
+        GameData gameData1 = new GameData(1234, null, "", "Game1234", new ChessGame());
+
+        gameDAO.addGame(gameData);
+        gameDAO.addGame(gameData1);
+
+        int len = gameDAO.listGames().size();
+
+        Assertions.assertNotEquals(len, 5);
+
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("clearGames")
+    public void clearGames() throws DataAccessException {
+        GameData gameData = new GameData(1234, null, "", "Game123", new ChessGame());
+
+        gameDAO.addGame(gameData);
+
+        GameData gameData1 = new GameData(1234, null, "", "Game1234", new ChessGame());
+
+        gameDAO.addGame(gameData);
+        gameDAO.addGame(gameData1);
+
+
+        gameDAO.clearGames();
+
+        int len = gameDAO.listGames().size();
+
+        Assertions.assertEquals(len, 0);
+
+    }
+
 }
