@@ -1,6 +1,10 @@
 package client;
 
+import dataaccess.BadRequestException;
+import exception.ResponseException;
+import model.UserData;
 import org.junit.jupiter.api.*;
+import server.RegisterResult;
 import server.Server;
 import server.ServerFacade;
 
@@ -16,16 +20,18 @@ public class ServerFacadeTests {
         int port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
         String portString = String.valueOf(port);
-        facade = new ServerFacade(portString);
+        facade = new ServerFacade("http://localhost:8080");
     }
 
-
+    @BeforeEach
+    void clearDataBase() throws ResponseException {
+        facade.clearDataBase();
+    }
 
     @AfterAll
     static void stopServer() {
         server.stop();
     }
-
 
     @Test
     public void sampleTest() {
@@ -33,8 +39,18 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void register() throws Exception {
-        //var authData = facade.register("player1", "password", "p1@email.com");
-        //Assertions.assertTrue(authData.authToken().length() > 10);
+    void registerPositive() throws Exception {
+        UserData userData = new UserData("player12", "password", "p1@email.com");
+        RegisterResult responseData = facade.registerUser(userData);
+        Assertions.assertTrue(responseData.getAuthToken().length() > 10);
+    }
+
+    @Test
+    void registerNegative() throws Exception {
+        UserData userData = new UserData("player12", null, "p1@email.com");
+
+        Assertions.assertThrows(ResponseException.class, () -> {
+            RegisterResult responseData = facade.registerUser(userData);
+        });
     }
 }
