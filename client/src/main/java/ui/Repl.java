@@ -5,6 +5,8 @@ import java.util.Scanner;
 import static com.sun.org.apache.xalan.internal.xsltc.compiler.Constants.RESET;
 import static java.awt.Color.BLUE;
 import static java.awt.Color.GREEN;
+import static ui.EscapeSequences.SET_TEXT_COLOR_BLACK;
+import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 
 public class Repl {
     private final PreLoginClient client;
@@ -15,7 +17,6 @@ public class Repl {
 
     public void run() {
         System.out.println("\uD83D\uDC36 Welcome to 240 chess. Type Help to get started.");
-        System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -25,7 +26,7 @@ public class Repl {
 
             try {
                 result = client.eval(line);
-                System.out.print(BLUE + result);
+                System.out.print(SET_TEXT_COLOR_BLACK + result);
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
@@ -35,7 +36,7 @@ public class Repl {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET + ">>> " + GREEN);
+        System.out.print("\n" + client.getState() + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 
 }

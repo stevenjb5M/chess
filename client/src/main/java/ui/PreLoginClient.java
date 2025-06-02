@@ -2,10 +2,8 @@ package ui;
 
 import java.util.Arrays;
 
-import server.RegisterRequest;
+import server.LoginResult;
 import server.RegisterResult;
-import ui.State;
-import com.google.gson.Gson;
 import model.UserData;
 import exception.ResponseException;
 import server.ServerFacade;
@@ -14,7 +12,7 @@ public class PreLoginClient {
     private String visitorName = null;
     private final ServerFacade server;
     private final String serverUrl;
-    private State state = State.SIGNEDOUT;
+    private State state = State.LOGGED_OUT;
 
     public PreLoginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -28,7 +26,7 @@ public class PreLoginClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "register" -> register(params);
-//                case "rescue" -> rescuePet(params);
+                case "login" -> login(params);
 //                case "list" -> listPets();
 //                case "signout" -> signOut();
 //                case "adopt" -> adoptPet(params);
@@ -41,6 +39,10 @@ public class PreLoginClient {
         }
     }
 
+    public State getState() {
+        return state;
+    }
+
     public String register(String... params) throws ResponseException {
         if (params.length == 3) {
 
@@ -51,13 +53,31 @@ public class PreLoginClient {
             UserData newUser = new UserData(userName, password, email);
 
             RegisterResult response = server.registerUser(newUser);
-            state = State.SIGNEDIN;
+            state = State.LOGGED_IN;
             visitorName = userName;
             return String.format("You signed in as %s.", visitorName);
 
         }
         throw new ResponseException(400, "Expected: <yourname>");
     }
+
+    public String login(String... params) throws ResponseException {
+        if (params.length == 2) {
+
+            String userName = params[0];
+            String password = params[1];
+
+            UserData newUser = new UserData(userName, password, null);
+
+            LoginResult response = server.loginUser(newUser);
+            state = State.LOGGED_IN;
+            visitorName = userName;
+            return String.format("You're signed in as %s.", visitorName);
+
+        }
+        throw new ResponseException(400, "Expected: <yourname>");
+    }
+
 
 //    public String rescuePet(String... params) throws ResponseException {
 //        assertSignedIn();
@@ -127,7 +147,7 @@ public class PreLoginClient {
 //    }
 
     public String help() {
-        if (state == State.SIGNEDOUT) {
+        if (state == State.LOGGED_OUT) {
             return """
                     - register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                     - login <USERNAME> <PASSWORD> - to play chess
@@ -146,7 +166,7 @@ public class PreLoginClient {
     }
 
     private void assertSignedIn() throws ResponseException {
-        if (state == State.SIGNEDOUT) {
+        if (state == State.LOGGED_OUT) {
             throw new ResponseException(400, "You must sign in");
         }
     }

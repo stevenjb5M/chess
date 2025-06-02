@@ -1,6 +1,4 @@
-package service;
-
-import server.RegisterResult;
+package server;
 
 public class LoginResult extends RegisterResult {
 

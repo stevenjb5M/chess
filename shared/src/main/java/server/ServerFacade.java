@@ -18,13 +18,17 @@ public class ServerFacade {
     }
 
     public RegisterResult registerUser(UserData user) throws ResponseException {
+        RegisterRequest request = new RegisterRequest(user.username(), user.password(), user.email());
+
         var path = "/user";
-        return this.makeRequest("POST", path, user, null);
+        return this.makeRequest("POST", path, request, RegisterResult.class);
     }
 
-    public UserData loginUser(UserData user) throws ResponseException {
+    public LoginResult loginUser(UserData user) throws ResponseException {
+        LoginRequest request = new LoginRequest(user.username(), user.password());
+
         var path = "/session";
-        return this.makeRequest("POST", path, user, UserData.class);
+        return this.makeRequest("POST", path, request, LoginResult.class);
     }
 
     public UserData logoutUser(UserData user) throws ResponseException {

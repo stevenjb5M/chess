@@ -4,6 +4,8 @@ import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
+import server.LoginRequest;
+import server.LoginResult;
 import server.RegisterRequest;
 import server.RegisterResult;
 
