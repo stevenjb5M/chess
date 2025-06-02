@@ -9,9 +9,11 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_BLACK;
 import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 
 public class Repl {
-    private final PreLoginClient client;
+    private Client client;
+    private String serverUrl;
 
     public Repl(String serverUrl) {
+        serverUrl = this.serverUrl;
         client = new PreLoginClient(serverUrl);
     }
 
@@ -33,6 +35,16 @@ public class Repl {
             }
         }
         System.out.println();
+    }
+
+    public void ChangeState(State newState) {
+        if (newState == State.LOGGED_IN) {
+            //client = new PostLoginClient(serverUrl);
+        } else if (newState == State.LOGGED_OUT) {
+            client = new PreLoginClient(serverUrl);
+        } else if (newState == State.GAME) {
+            //client = new GameClient(serverUrl);
+        }
     }
 
     private void printPrompt() {

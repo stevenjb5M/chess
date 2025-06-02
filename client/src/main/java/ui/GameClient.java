@@ -5,6 +5,6 @@ import exception.ResponseException;
 import server.ServerFacade;
 import java.util.Arrays;
 
-public class GameClient {
+public class GameClient extends Client {
 
 }

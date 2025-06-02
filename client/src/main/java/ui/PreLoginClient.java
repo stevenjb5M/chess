@@ -8,7 +8,7 @@ import model.UserData;
 import exception.ResponseException;
 import server.ServerFacade;
 
-public class PreLoginClient {
+public class PreLoginClient extends Client {
     private String visitorName = null;
     private final ServerFacade server;
     private final String serverUrl;
@@ -19,6 +19,7 @@ public class PreLoginClient {
         this.serverUrl = serverUrl;
     }
 
+    @Override
     public String eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
@@ -39,6 +40,7 @@ public class PreLoginClient {
         }
     }
 
+    @Override
     public State getState() {
         return state;
     }

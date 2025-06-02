@@ -7,6 +7,6 @@ import server.ServerFacade;
 
 import java.util.Arrays;
 
-public class PostLoginClient {
+public class PostLoginClient extends Client {
 
 }
