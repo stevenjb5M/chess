@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import exception.ErrorResponse;
 import exception.ResponseException;
+import model.GameData;
 import model.UserData;
 
 import java.io.*;
@@ -16,29 +17,64 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-
-    public UserData registerUser(UserData pet) throws ResponseException {
+    public UserData registerUser(UserData user) throws ResponseException {
         var path = "/register";
-        return this.makeRequest("POST", path, pet, UserData.class);
+        return this.makeRequest("POST", path, user, UserData.class);
     }
 
-    public void deletePet(int id) throws ResponseException {
-        var path = String.format("/pet/%s", id);
-        this.makeRequest("DELETE", path, null, null);
+    public UserData loginUser(UserData user) throws ResponseException {
+        var path = "/session";
+        return this.makeRequest("POST", path, user, UserData.class);
     }
 
-    public void deleteAllPets() throws ResponseException {
-        var path = "/pet";
-        this.makeRequest("DELETE", path, null, null);
+    public UserData logoutUser(UserData user) throws ResponseException {
+        var path = "/session";
+        return this.makeRequest("DELETE", path, user, UserData.class);
     }
 
-    public UserData[] listPets() throws ResponseException {
-        var path = "/pet";
-        record listPetResponse(UserData[] pet) {
+    public GameData[] listGames() throws ResponseException {
+        var path = "/game";
+        record listGameResponse(GameData[] game) {
         }
-        var response = this.makeRequest("GET", path, null, listPetResponse.class);
-        return response.pet();
+        var response = this.makeRequest("GET", path, null, listGameResponse.class);
+        return response.game;
     }
+
+    public GameData createGame(GameData game) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("POST", path, game, GameData.class);
+    }
+
+    public GameData joinGame(GameData game) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("PUT", path, game, GameData.class);
+    }
+
+    public void clearDataBase() throws ResponseException {
+        var path = "/db";
+        this.makeRequest("DELETE", path, null, null);
+    }
+
+
+
+
+//    public void deletePet(int id) throws ResponseException {
+//        var path = String.format("/pet/%s", id);
+//        this.makeRequest("DELETE", path, null, null);
+//    }
+//
+//    public void deleteAllPets() throws ResponseException {
+//        var path = "/pet";
+//        this.makeRequest("DELETE", path, null, null);
+//    }
+//
+//    public UserData[] listPets() throws ResponseException {
+//        var path = "/pet";
+//        record listPetResponse(UserData[] pet) {
+//        }
+//        var response = this.makeRequest("GET", path, null, listPetResponse.class);
+//        return response.pet();
+//    }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
