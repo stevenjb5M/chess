@@ -5,6 +5,7 @@ import dataaccess.*;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
+import server.RegisterRequest;
 
 import java.util.*;
 

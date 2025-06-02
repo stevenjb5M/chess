@@ -8,6 +8,7 @@ import org.junit.jupiter.api.*;
 import org.mindrot.jbcrypt.BCrypt;
 import passoff.model.TestCreateRequest;
 import passoff.model.TestUser;
+import server.RegisterRequest;
 import service.*;
 
 import java.util.Collection;

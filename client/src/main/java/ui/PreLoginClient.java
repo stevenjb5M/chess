@@ -2,6 +2,8 @@ package ui;
 
 import java.util.Arrays;
 
+import server.RegisterRequest;
+import server.RegisterResult;
 import ui.State;
 import com.google.gson.Gson;
 import model.UserData;
@@ -25,7 +27,7 @@ public class PreLoginClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "signin" -> signIn(params);
+                case "register" -> register(params);
 //                case "rescue" -> rescuePet(params);
 //                case "list" -> listPets();
 //                case "signout" -> signOut();
@@ -39,11 +41,20 @@ public class PreLoginClient {
         }
     }
 
-    public String signIn(String... params) throws ResponseException {
-        if (params.length >= 1) {
+    public String register(String... params) throws ResponseException {
+        if (params.length == 3) {
+
+            String userName = params[0];
+            String password = params[1];
+            String email = params[2];
+
+            UserData newUser = new UserData(userName, password, email);
+
+            RegisterResult response = server.registerUser(newUser);
             state = State.SIGNEDIN;
-            visitorName = String.join("-", params);
+            visitorName = userName;
             return String.format("You signed in as %s.", visitorName);
+
         }
         throw new ResponseException(400, "Expected: <yourname>");
     }
@@ -118,8 +129,10 @@ public class PreLoginClient {
     public String help() {
         if (state == State.SIGNEDOUT) {
             return """
-                    - signIn <yourname>
-                    - quit
+                    - register <USERNAME> <PASSWORD> <EMAIL> - to create an account
+                    - login <USERNAME> <PASSWORD> - to play chess
+                    - quit - playing chess
+                    - help - with possible commands
                     """;
         }
         return """

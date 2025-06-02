@@ -1,6 +1,8 @@
 package ui;
 
 import java.util.Scanner;
+
+import static com.sun.org.apache.xalan.internal.xsltc.compiler.Constants.RESET;
 import static java.awt.Color.BLUE;
 import static java.awt.Color.GREEN;
 
@@ -33,7 +35,7 @@ public class Repl {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + ">>> " + GREEN);
+        System.out.print("\n" + RESET + ">>> " + GREEN);
     }
 
 }
