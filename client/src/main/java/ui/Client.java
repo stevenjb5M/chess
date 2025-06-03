@@ -1,8 +1,9 @@
 package ui;
 
-import java.util.Arrays;
+import java.util.*;
 
 import chess.ChessGame;
+import model.GameData;
 import server.*;
 import model.UserData;
 import exception.ResponseException;
@@ -14,6 +15,7 @@ public class Client {
     private final String serverUrl;
     private Repl repl;
     private State state = State.LOGGED_OUT;
+    private Map<Integer, Integer> GamesWithIDs = new HashMap<>();
 
     public Client(String serverUrl, Repl repl) {
         server = new ServerFacade(serverUrl);
@@ -32,10 +34,8 @@ public class Client {
                 case "list" -> listGames();
                 case "logout" -> logOut();
                 case "create" -> createGame(params);
-//                case "list" -> listPets();
-//                case "signout" -> signOut();
-//                case "adopt" -> adoptPet(params);
-//                case "adoptall" -> adoptAllPets();
+                case "join" -> joinGame(params);
+                case "observe" -> observe(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -64,7 +64,7 @@ public class Client {
             return String.format("You signed in as %s.", visitorName);
 
         }
-        throw new ResponseException(400, "Expected: <yourname>");
+        throw new ResponseException(400, "Failed to Register");
     }
 
     public String login(String... params) throws ResponseException {
@@ -87,6 +87,29 @@ public class Client {
         throw new ResponseException(400, "Expected: <yourname>");
     }
 
+    public String listGames(String... params) throws ResponseException {
+        if (params.length == 0) {
+
+            ListGamesResult result = server.listGames();
+
+            Collection<GameData> games = result.getGames();
+
+            StringBuilder message = new StringBuilder();
+            int gameNumber = 1;
+
+            for (GameData game: games) {
+                String line = gameNumber + ": " + game.gameName() + " White:" + game.whiteUsername() + " Black:" + game.blackUsername() + "\n";
+                message.append(line);
+                GamesWithIDs.put(gameNumber,game.gameID());
+                gameNumber++;
+            }
+
+            return String.format(message.toString());
+
+        }
+        throw new ResponseException(400, "Failed to get games");
+    }
+
     public String createGame(String... params) throws ResponseException {
         if (params.length == 1) {
 
@@ -107,11 +130,21 @@ public class Client {
 
             String gameNumber = params[0];
             String color = params[1];
+            ChessGame.TeamColor teamColor = ChessGame.TeamColor.WHITE;
 
-            ChessGame.TeamColor test = ChessGame.TeamColor.WHITE;
-            int ID = 123;
+            if (color.equalsIgnoreCase("WHITE")) {
+                teamColor = ChessGame.TeamColor.WHITE;
+            } else if (color.equalsIgnoreCase("BLACK")){
+                teamColor = ChessGame.TeamColor.BLACK;
+            } else {
+                throw new ResponseException(400, "Invalid Color");
+            }
 
-            JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.WHITE, ID);
+            int gameIndex = Integer.parseInt(gameNumber);
+            int gameID = GamesWithIDs.get(gameIndex);
+
+
+            JoinGameRequest request = new JoinGameRequest(teamColor, gameID);
 
             server.joinGame(request);
 
@@ -119,6 +152,20 @@ public class Client {
 
         }
         throw new ResponseException(400, "Failed to join game");
+    }
+
+    public String observe(String... params) throws ResponseException {
+        if (params.length == 1) {
+
+            String gameNumber = params[0];
+
+            int gameIndex = Integer.parseInt(gameNumber);
+            int gameID = GamesWithIDs.get(gameIndex);
+
+            return String.format("You are now observing the game");
+
+        }
+        throw new ResponseException(400, "Failed to observe game");
     }
 
     public String help() {
@@ -156,11 +203,6 @@ public class Client {
         if (state == State.LOGGED_OUT) {
             throw new ResponseException(400, "You must sign in");
         }
-    }
-
-    public String listGames(String... params) throws ResponseException {
-
-        throw new ResponseException(400, "Expected: <yourname>");
     }
 
     public String logOut(String... params) throws ResponseException {
