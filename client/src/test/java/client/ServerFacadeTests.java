@@ -4,9 +4,7 @@ import dataaccess.BadRequestException;
 import exception.ResponseException;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import server.RegisterResult;
-import server.Server;
-import server.ServerFacade;
+import server.*;
 
 
 public class ServerFacadeTests {
@@ -51,6 +49,26 @@ public class ServerFacadeTests {
 
         Assertions.assertThrows(ResponseException.class, () -> {
             RegisterResult responseData = facade.registerUser(userData);
+        });
+    }
+
+    @Test
+    void loginPositive() throws Exception {
+        UserData userData = new UserData("player12", "password", "p1@email.com");
+        RegisterResult responseData = facade.registerUser(userData);
+
+
+        UserData userData2 = new UserData("player12", "password", null);
+        LoginResult responseData2 = facade.loginUser(userData2);
+        Assertions.assertTrue(responseData2.getAuthToken().length() > 10);
+    }
+
+    @Test
+    void loginNegative() throws Exception {
+        UserData userData = new UserData("player12", null, "p1@email.com");
+
+        Assertions.assertThrows(ResponseException.class, () -> {
+            LoginResult responseData = facade.loginUser(userData);
         });
     }
 }

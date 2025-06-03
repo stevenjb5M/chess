@@ -12,11 +12,13 @@ public class PreLoginClient extends Client {
     private String visitorName = null;
     private final ServerFacade server;
     private final String serverUrl;
+    private Repl repl;
     private State state = State.LOGGED_OUT;
 
-    public PreLoginClient(String serverUrl) {
+    public PreLoginClient(String serverUrl, Repl repl) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
+        this.repl = repl;
     }
 
     @Override
@@ -55,7 +57,7 @@ public class PreLoginClient extends Client {
             UserData newUser = new UserData(userName, password, email);
 
             RegisterResult response = server.registerUser(newUser);
-            state = State.LOGGED_IN;
+            repl.ChangeState(State.LOGGED_IN);
             visitorName = userName;
             return String.format("You signed in as %s.", visitorName);
 
@@ -72,7 +74,7 @@ public class PreLoginClient extends Client {
             UserData newUser = new UserData(userName, password, null);
 
             LoginResult response = server.loginUser(newUser);
-            state = State.LOGGED_IN;
+            repl.ChangeState(State.LOGGED_IN);
             visitorName = userName;
             return String.format("You're signed in as %s.", visitorName);
 
@@ -149,22 +151,12 @@ public class PreLoginClient extends Client {
 //    }
 
     public String help() {
-        if (state == State.LOGGED_OUT) {
             return """
                     - register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                     - login <USERNAME> <PASSWORD> - to play chess
                     - quit - playing chess
                     - help - with possible commands
                     """;
-        }
-        return """
-                - list
-                - adopt <pet id>
-                - rescue <name> <CAT|DOG|FROG|FISH>
-                - adoptAll
-                - signOut
-                - quit
-                """;
     }
 
     private void assertSignedIn() throws ResponseException {
