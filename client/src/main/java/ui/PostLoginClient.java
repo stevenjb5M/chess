@@ -1,6 +1,7 @@
 package ui;
 
 import model.UserData;
+import server.LoginResult;
 import server.RegisterResult;
 import  ui.State;
 import com.google.gson.Gson;
@@ -29,7 +30,7 @@ public class PostLoginClient extends Client {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "list" -> listGames();
-//                case "signout" -> signOut();
+                case "logout" -> logOut();
 //                case "adopt" -> adoptPet(params);
 //                case "adoptall" -> adoptAllPets();
                 case "quit" -> "quit";
@@ -45,14 +46,31 @@ public class PostLoginClient extends Client {
         throw new ResponseException(400, "Expected: <yourname>");
     }
 
+    public String logOut(String... params) throws ResponseException {
+        if (params.length == 2) {
+
+            String userName = params[0];
+            String password = params[1];
+
+            UserData newUser = new UserData(userName, password, null);
+
+            var response = server.logoutUser(newUser);
+            repl.ChangeState(State.LOGGED_OUT);
+            return String.format("You're signed out");
+
+        }
+        throw new ResponseException(400, "Error logging you out");
+    }
+
     public String help() {
         return """
-                - list
-                - adopt <pet id>
-                - rescue <name> <CAT|DOG|FROG|FISH>
-                - adoptAll
-                - signOut
-                - quit
+                - create <NAME> - a game
+                - list - games
+                - join <ID> [WHITE|BLACK] - a game
+                - observe <ID> - a game
+                - logout - when you are done
+                - quit - playing chess
+                - help - with possible commands
                 """;
     }
 
