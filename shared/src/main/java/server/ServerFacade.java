@@ -12,6 +12,7 @@ import java.net.*;
 public class ServerFacade {
 
     private final String serverUrl;
+    public String authToken;
 
     public ServerFacade(String url) {
         serverUrl = url;
@@ -31,9 +32,9 @@ public class ServerFacade {
         return this.makeRequest("POST", path, request, LoginResult.class);
     }
 
-    public UserData logoutUser(UserData user) throws ResponseException {
+    public void logoutUser(String authToken) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("DELETE", path, user, UserData.class);
+        this.makeRequest("DELETE", path, authToken, null);
     }
 
     public GameData[] listGames() throws ResponseException {
@@ -44,14 +45,14 @@ public class ServerFacade {
         return response.game;
     }
 
-    public GameData createGame(GameData game) throws ResponseException {
+    public CreateGameResult createGame(CreateGameRequest request) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("POST", path, game, GameData.class);
+        return this.makeRequest("POST", path, request, CreateGameResult.class);
     }
 
-    public GameData joinGame(GameData game) throws ResponseException {
+    public void joinGame(JoinGameRequest game) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("PUT", path, game, GameData.class);
+        this.makeRequest("PUT", path, game, null);
     }
 
     public void clearDataBase() throws ResponseException {
@@ -86,6 +87,10 @@ public class ServerFacade {
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+
+            if (authToken != null) {
+                http.setRequestProperty("Authorization", authToken);
+            }
 
             writeBody(request, http);
             http.connect();

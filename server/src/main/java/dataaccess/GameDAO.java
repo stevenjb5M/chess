@@ -1,7 +1,7 @@
 package dataaccess;
 
 import model.GameData;
-import service.JoinGameRequest;
+import server.JoinGameRequest;
 
 import java.util.Collection;
 

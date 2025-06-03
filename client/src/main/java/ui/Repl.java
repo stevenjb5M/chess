@@ -2,9 +2,6 @@ package ui;
 
 import java.util.Scanner;
 
-import static com.sun.org.apache.xalan.internal.xsltc.compiler.Constants.RESET;
-import static java.awt.Color.BLUE;
-import static java.awt.Color.GREEN;
 import static ui.EscapeSequences.SET_TEXT_COLOR_BLACK;
 import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 
@@ -12,10 +9,11 @@ public class Repl {
     private Client client;
     private String serverURL;
     private State state = State.LOGGED_OUT;
+    public String currentAuthToken;
 
     public Repl(String serverUrl) {
         serverURL = serverUrl;
-        client = new PreLoginClient(serverUrl, this);
+        client = new Client(serverUrl, this);
     }
 
     public void run() {
@@ -40,10 +38,8 @@ public class Repl {
 
     public void ChangeState(State newState) {
         if (newState == State.LOGGED_IN) {
-            client = new PostLoginClient(serverURL, this);
             state = State.LOGGED_IN;
         } else if (newState == State.LOGGED_OUT) {
-            client = new PreLoginClient(serverURL, this);
             state = State.LOGGED_OUT;
         } else if (newState == State.GAME) {
             //client = new GameClient(serverURL);

@@ -71,4 +71,23 @@ public class ServerFacadeTests {
             LoginResult responseData = facade.loginUser(userData);
         });
     }
+
+    @Test
+    void logoutPositive() throws Exception {
+        UserData userData = new UserData("player12", "password", "p1@email.com");
+        RegisterResult responseData = facade.registerUser(userData);
+        facade.authToken = responseData.getAuthToken();
+
+        Assertions.assertDoesNotThrow(() -> {
+            facade.logoutUser(responseData.getAuthToken());
+        });
+    }
+
+    @Test
+    void logoutNegative() throws Exception {
+        Assertions.assertThrows(ResponseException.class, () -> {
+            facade.logoutUser("test");
+        });
+    }
+
 }

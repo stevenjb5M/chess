@@ -2,6 +2,9 @@ package service;
 
 import dataaccess.*;
 import model.GameData;
+import server.CreateGameRequest;
+import server.CreateGameResult;
+import server.JoinGameRequest;
 
 import java.util.Collection;
 

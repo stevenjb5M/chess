@@ -1,4 +1,4 @@
-package service;
+package server;
 
 public class CreateGameRequest {
     private String gameName;
