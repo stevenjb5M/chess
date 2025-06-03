@@ -148,7 +148,7 @@ public class Client {
 
             server.joinGame(request);
 
-            return showGameBoard();
+            //return showGameBoard();
 
             return String.format("You have joined the game successfully");
 

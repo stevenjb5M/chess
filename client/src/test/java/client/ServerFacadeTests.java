@@ -2,9 +2,12 @@ package client;
 
 import dataaccess.BadRequestException;
 import exception.ResponseException;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.*;
+
+import java.util.Collection;
 
 
 public class ServerFacadeTests {
@@ -89,5 +92,70 @@ public class ServerFacadeTests {
             facade.logoutUser("test");
         });
     }
+
+    @Test
+    void listGamesPositive() throws Exception {
+        UserData userData = new UserData("player12", "password", "p1@email.com");
+        RegisterResult responseData = facade.registerUser(userData);
+        facade.authToken = responseData.getAuthToken();
+
+        CreateGameRequest request = new CreateGameRequest("test");
+        facade.createGame(request);
+
+        ListGamesResult result = facade.listGames();
+        Collection<GameData> games = result.getGames();
+
+        Assertions.assertEquals(games.size(), 1);
+    }
+
+    @Test
+    void listGamesNegative() throws Exception {
+
+        UserData userData = new UserData("player12", "password", "p1@email.com");
+        RegisterResult responseData = facade.registerUser(userData);
+        facade.authToken = responseData.getAuthToken();
+
+        ListGamesResult result = facade.listGames();
+        Collection<GameData> games = result.getGames();
+
+        Assertions.assertEquals(games.size(), 0);
+    }
+
+    @Test
+    void createGamesPositive() throws Exception {
+        UserData userData = new UserData("player12", "password", "p1@email.com");
+        RegisterResult responseData = facade.registerUser(userData);
+        facade.authToken = responseData.getAuthToken();
+
+        CreateGameRequest request = new CreateGameRequest("testgame");
+        facade.createGame(request);
+
+        CreateGameRequest request2 = new CreateGameRequest("testgame1");
+        facade.createGame(request2);
+
+
+        ListGamesResult result = facade.listGames();
+        Collection<GameData> games = result.getGames();
+
+        Assertions.assertEquals(games.size(), 2);
+    }
+
+    @Test
+    void createGamesNegative() throws Exception {
+
+        UserData userData = new UserData("player12", "password", "p1@email.com");
+        RegisterResult responseData = facade.registerUser(userData);
+        facade.authToken = responseData.getAuthToken();
+
+
+        CreateGameRequest request = new CreateGameRequest(null);
+
+        Assertions.assertThrows(ResponseException.class, () -> {
+            facade.createGame(request);
+        });
+
+    }
+
+
 
 }
