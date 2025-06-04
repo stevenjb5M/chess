@@ -10,7 +10,6 @@ import model.GameData;
 import server.*;
 import model.UserData;
 import exception.ResponseException;
-import server.JoinGameRequest;
 
 import static chess.ChessGame.TeamColor.WHITE;
 import static ui.EscapeSequences.*;
@@ -21,7 +20,7 @@ public class Client {
     private final String serverUrl;
     private Repl repl;
     private State state = State.LOGGED_OUT;
-    private Map<Integer, GameData> GamesWithIDs = new HashMap<>();
+    private Map<Integer, GameData> gamesWithIDs = new HashMap<>();
 
     public Client(String serverUrl, Repl repl) {
         server = new ServerFacade(serverUrl);
@@ -65,7 +64,7 @@ public class Client {
 
             RegisterResult response = server.registerUser(newUser);
             state = State.LOGGED_IN;
-            repl.ChangeState(State.LOGGED_IN);
+            repl.changeState(State.LOGGED_IN);
             visitorName = userName;
             return String.format("You signed in as %s.", visitorName);
 
@@ -85,7 +84,7 @@ public class Client {
 
             server.authToken = response.getAuthToken();
             state = State.LOGGED_IN;
-            repl.ChangeState(State.LOGGED_IN);
+            repl.changeState(State.LOGGED_IN);
             visitorName = userName;
             return String.format("You're signed in as %s.", visitorName);
 
@@ -106,7 +105,7 @@ public class Client {
             for (GameData game: games) {
                 String line = gameNumber + ": " + game.gameName() + " White:" + game.whiteUsername() + " Black:" + game.blackUsername() + "\n";
                 message.append(line);
-                GamesWithIDs.put(gameNumber,game);
+                gamesWithIDs.put(gameNumber,game);
                 gameNumber++;
             }
 
@@ -147,7 +146,7 @@ public class Client {
             }
 
             int gameIndex = Integer.parseInt(gameNumber);
-            GameData gameData = GamesWithIDs.get(gameIndex);
+            GameData gameData = gamesWithIDs.get(gameIndex);
 
 
             JoinGameRequest request = new JoinGameRequest(teamColor, gameData.gameID());
@@ -166,7 +165,7 @@ public class Client {
             String gameNumber = params[0];
 
             int gameIndex = Integer.parseInt(gameNumber);
-            GameData gameData = GamesWithIDs.get(gameIndex);
+            GameData gameData = gamesWithIDs.get(gameIndex);
 
             showGameBoard(gameData, WHITE);
 
@@ -207,18 +206,12 @@ public class Client {
                     """;
     }
 
-    private void assertSignedIn() throws ResponseException {
-        if (state == State.LOGGED_OUT) {
-            throw new ResponseException(400, "You must sign in");
-        }
-    }
-
     public String logOut(String... params) throws ResponseException {
         if (params.length == 0 && server.authToken != null) {
 
             server.logoutUser(repl.currentAuthToken);
             state = State.LOGGED_OUT;
-            repl.ChangeState(State.LOGGED_OUT);
+            repl.changeState(State.LOGGED_OUT);
             return String.format("You're signed out");
 
         }
@@ -227,32 +220,9 @@ public class Client {
 
     private String showGameBoard(GameData game, ChessGame.TeamColor playerColor) {
 
-        String RESET = "\u001B[0m";
+        String reset = "\u001B[0m";
 
-        if (playerColor == WHITE) {
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " a " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " b " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " c " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " d " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " e " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " f " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " g " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " h " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
-        } else {
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " h " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " g " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " f " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " e " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " d " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " c " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " b " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " a " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
-        }
-
+        runHeaders(playerColor,reset);
 
         System.out.println();
 
@@ -269,7 +239,7 @@ public class Client {
 
 
         for (int row = startR; row != endR + dir; row += dir) {
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + reset);
             isLight = playerColor == WHITE ? (row % 2 == 0) : (row % 2 != 0);
 
             for (int col = startC; col != endC + dirC; col += dirC) {
@@ -284,39 +254,17 @@ public class Client {
                 if (piece != null) {
                     String textcolor = piece.getTeamColor() == WHITE ? SET_TEXT_COLOR_RED : SET_TEXT_COLOR_BLUE;
                     String letter = getOneLetterName(piece.getPieceType());
-                    System.out.print(textcolor + color + " " + letter + " " + RESET);
+                    System.out.print(textcolor + color + " " + letter + " " + reset);
                 } else {
-                    System.out.print(color + "   " + RESET);
+                    System.out.print(color + "   " + reset);
                 }
 
                 isLight = !isLight;
             }
-            System.out.println(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + RESET);
+            System.out.println(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + reset);
         }
 
-        if (playerColor == WHITE) {
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " a " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " b " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " c " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " d " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " e " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " f " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " g " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " h " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
-        } else {
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " h " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " g " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " f " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " e " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " d " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " c " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " b " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " a " + RESET);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
-        }
+        runHeaders(playerColor, reset);
 
         System.out.println();
 
@@ -332,6 +280,32 @@ public class Client {
             case BISHOP: { return "B";}
             case PAWN: { return "P";}
             default: return "";
+        }
+    }
+
+    private void runHeaders(ChessGame.TeamColor color, String reset) {
+        if (color == WHITE) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " a " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " b " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " c " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " d " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " e " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " f " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " g " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " h " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + reset);
+        } else {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " h " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " g " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " f " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " e " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " d " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " c " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " b " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " a " + reset);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + reset);
         }
     }
 }

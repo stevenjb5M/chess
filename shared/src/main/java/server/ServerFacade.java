@@ -57,27 +57,6 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, null);
     }
 
-
-
-
-//    public void deletePet(int id) throws ResponseException {
-//        var path = String.format("/pet/%s", id);
-//        this.makeRequest("DELETE", path, null, null);
-//    }
-//
-//    public void deleteAllPets() throws ResponseException {
-//        var path = "/pet";
-//        this.makeRequest("DELETE", path, null, null);
-//    }
-//
-//    public UserData[] listPets() throws ResponseException {
-//        var path = "/pet";
-//        record listPetResponse(UserData[] pet) {
-//        }
-//        var response = this.makeRequest("GET", path, null, listPetResponse.class);
-//        return response.pet();
-//    }
-
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();

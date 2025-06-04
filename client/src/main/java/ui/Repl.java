@@ -36,7 +36,7 @@ public class Repl {
         System.out.println();
     }
 
-    public void ChangeState(State newState) {
+    public void changeState(State newState) {
         if (newState == State.LOGGED_IN) {
             state = State.LOGGED_IN;
         } else if (newState == State.LOGGED_OUT) {
