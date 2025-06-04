@@ -12,6 +12,7 @@ import model.UserData;
 import exception.ResponseException;
 import server.JoinGameRequest;
 
+import static chess.ChessGame.TeamColor.WHITE;
 import static ui.EscapeSequences.*;
 
 public class Client {
@@ -135,10 +136,10 @@ public class Client {
 
             String gameNumber = params[0];
             String color = params[1];
-            ChessGame.TeamColor teamColor = ChessGame.TeamColor.WHITE;
+            ChessGame.TeamColor teamColor = WHITE;
 
             if (color.equalsIgnoreCase("WHITE")) {
-                teamColor = ChessGame.TeamColor.WHITE;
+                teamColor = WHITE;
             } else if (color.equalsIgnoreCase("BLACK")){
                 teamColor = ChessGame.TeamColor.BLACK;
             } else {
@@ -224,43 +225,95 @@ public class Client {
 
     private String showGameBoard(GameData game, ChessGame.TeamColor playerColor) {
 
-
         String RESET = "\u001B[0m";
 
-        //Top ROW
-        System.out.print(SET_BG_COLOR_LIGHT_GREY + "  " + RESET);
-        System.out.print(SET_BG_COLOR_LIGHT_GREY + "a " + RESET);
-        System.out.print(SET_BG_COLOR_LIGHT_GREY + "b " + RESET);
-        System.out.print(SET_BG_COLOR_LIGHT_GREY + "c " + RESET);
-        System.out.print(SET_BG_COLOR_LIGHT_GREY + "d " + RESET);
-        System.out.print(SET_BG_COLOR_LIGHT_GREY + "e " + RESET);
-        System.out.print(SET_BG_COLOR_LIGHT_GREY + "f " + RESET);
-        System.out.print(SET_BG_COLOR_LIGHT_GREY + "g " + RESET);
-        System.out.print(SET_BG_COLOR_LIGHT_GREY + "h " + RESET);
-        System.out.print(SET_BG_COLOR_LIGHT_GREY + "  " + RESET);
+        if (playerColor == WHITE) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " a " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " b " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " c " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " d " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " e " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " f " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " g " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " h " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
+        } else {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " h " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " g " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " f " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " e " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " d " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " c " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " b " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " a " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
+        }
+
+
+        System.out.println();
 
         ChessBoard board = game.game().getBoard();
 
         boolean isLight = true;
+        int startR = playerColor == WHITE ? 8 : 1;
+        int endR = playerColor == WHITE ? 1 : 8;
+        int dir = playerColor == WHITE ? -1 : 1;
 
-        for (int row = 8; row <= 1; row--) {
-            for (int col = 1; col <= 8; row++) {
-                if (col == 1) {
-                    System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + RESET);
-                }
+        int startC = playerColor == WHITE ? 1 : 8;
+        int endC = playerColor == WHITE ? 8 : 1;
+        int dirC = playerColor == WHITE ? 1 : -1;
+
+
+        for (int row = startR; row != endR + dir; row += dir) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + RESET);
+            isLight = playerColor == WHITE ? (row % 2 == 0) : (row % 2 != 0);
+
+            for (int col = startC; col != endC + dirC; col += dirC) {
 
                 String color = isLight ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+
 
                 ChessPosition pos = new ChessPosition(row,col);
                 ChessPiece piece = board.getPiece(pos);
 
+
                 if (piece != null) {
-                    String letter = piece.getPieceType().toString();
-                    System.out.print(color + "  " + RESET);
+                    String textcolor = piece.getTeamColor() == WHITE ? SET_TEXT_COLOR_RED : SET_TEXT_COLOR_BLUE;
+                    String letter = getOneLetterName(piece.getPieceType());
+                    System.out.print(textcolor + color + " " + letter + " " + RESET);
                 } else {
-                    System.out.print(color + "  " + RESET);
+                    System.out.print(color + "   " + RESET);
                 }
+
+                isLight = !isLight;
             }
+            System.out.println(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + RESET);
+        }
+
+        if (playerColor == WHITE) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " a " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " b " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " c " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " d " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " e " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " f " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " g " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " h " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
+        } else {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " h " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " g " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " f " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " e " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " d " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " c " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " b " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " a " + RESET);
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
         }
 
 
@@ -274,7 +327,7 @@ public class Client {
             case KNIGHT: { return "N";}
             case ROOK: { return "R";}
             case BISHOP: { return "B";}
-            case PAWN: { return "N";}
+            case PAWN: { return "P";}
             default: return "";
         }
     }

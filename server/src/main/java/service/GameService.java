@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.*;
 import model.GameData;
 import server.CreateGameRequest;
@@ -18,7 +19,8 @@ public class GameService {
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
         if (this.gameDAO.getGame(createGameRequest.getGameName()) == null && createGameRequest.getGameName() != null) {
-            GameData gameData = new GameData(0, null, null, createGameRequest.getGameName(), null);
+            ChessGame chessGame = new ChessGame();
+            GameData gameData = new GameData(0, null, null, createGameRequest.getGameName(), chessGame);
 
             GameData gameData1 = this.gameDAO.addGame(gameData);
             //cast to result
