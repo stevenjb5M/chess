@@ -194,7 +194,11 @@ public class Client {
                 int gameIndex = Integer.parseInt(gameNumber);
                 GameData gameData = gamesWithIDs.get(gameIndex);
 
-                showGameBoard(gameData, WHITE);
+                if (gameData != null) {
+                    showGameBoard(gameData, WHITE);
+                } else {
+                    throw new ResponseException(400, "No game found, run list to see what games are available");
+                }
 
                 return String.format("You are now observing the game");
 
