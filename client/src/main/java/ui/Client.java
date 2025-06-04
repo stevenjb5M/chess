@@ -54,125 +54,156 @@ public class Client {
     }
 
     public String register(String... params) throws ResponseException {
-        if (params.length == 3) {
+        try {
+            if (params.length == 3) {
 
-            String userName = params[0];
-            String password = params[1];
-            String email = params[2];
+                String userName = params[0];
+                String password = params[1];
+                String email = params[2];
 
-            UserData newUser = new UserData(userName, password, email);
+                UserData newUser = new UserData(userName, password, email);
 
-            RegisterResult response = server.registerUser(newUser);
-            state = State.LOGGED_IN;
-            repl.changeState(State.LOGGED_IN);
-            visitorName = userName;
-            return String.format("You signed in as %s.", visitorName);
+                RegisterResult response = server.registerUser(newUser);
+                state = State.LOGGED_IN;
+                repl.changeState(State.LOGGED_IN);
+                visitorName = userName;
+                return String.format("You signed in as %s.", visitorName);
 
+            } else {
+                throw new ResponseException(400, "Failed to Register");
+            }
+        } catch(ResponseException e) {
+            throw new ResponseException(400, "Failed to Register");
         }
-        throw new ResponseException(400, "Failed to Register");
     }
 
     public String login(String... params) throws ResponseException {
-        if (params.length == 2) {
+        try {
+            if (params.length == 2) {
 
-            String userName = params[0];
-            String password = params[1];
+                String userName = params[0];
+                String password = params[1];
 
-            UserData newUser = new UserData(userName, password, null);
+                UserData newUser = new UserData(userName, password, null);
 
-            LoginResult response = server.loginUser(newUser);
+                LoginResult response = server.loginUser(newUser);
 
-            server.authToken = response.getAuthToken();
-            state = State.LOGGED_IN;
-            repl.changeState(State.LOGGED_IN);
-            visitorName = userName;
-            return String.format("You're signed in as %s.", visitorName);
+                server.authToken = response.getAuthToken();
+                state = State.LOGGED_IN;
+                repl.changeState(State.LOGGED_IN);
+                visitorName = userName;
+                return String.format("You're signed in as %s.", visitorName);
 
+            } else {
+                throw new ResponseException(400, "Failed to login, didn't see a username and password");
+            }
+        } catch(ResponseException e) {
+        throw new ResponseException(400, "Failed to login");
         }
-        throw new ResponseException(400, "Expected: <yourname>");
     }
 
     public String listGames(String... params) throws ResponseException {
-        if (params.length == 0) {
+        try {
+            if (params.length == 0) {
 
-            ListGamesResult result = server.listGames();
+                ListGamesResult result = server.listGames();
 
-            Collection<GameData> games = result.getGames();
+                Collection<GameData> games = result.getGames();
 
-            StringBuilder message = new StringBuilder();
-            int gameNumber = 1;
+                StringBuilder message = new StringBuilder();
+                int gameNumber = 1;
 
-            for (GameData game: games) {
-                String line = gameNumber + ": " + game.gameName() + " White:" + game.whiteUsername() + " Black:" + game.blackUsername() + "\n";
-                message.append(line);
-                gamesWithIDs.put(gameNumber,game);
-                gameNumber++;
+                for (GameData game: games) {
+                    String line = gameNumber + ": " + game.gameName() + " White:" + game.whiteUsername() + " Black:" + game.blackUsername() + "\n";
+                    message.append(line);
+                    gamesWithIDs.put(gameNumber,game);
+                    gameNumber++;
+                }
+
+                return String.format(message.toString());
+
+            } else {
+                throw new ResponseException(400, "Failed to get games");
             }
-
-            return String.format(message.toString());
-
+        } catch (ResponseException e) {
+            throw new ResponseException(400, "Failed to get games");
         }
-        throw new ResponseException(400, "Failed to get games");
+
     }
 
     public String createGame(String... params) throws ResponseException {
-        if (params.length == 1) {
+        try {
+            if (params.length == 1) {
 
-            String gameName = params[0];
+                String gameName = params[0];
 
-            CreateGameRequest request = new CreateGameRequest(gameName);
+                CreateGameRequest request = new CreateGameRequest(gameName);
 
-            CreateGameResult response = server.createGame(request);
+                CreateGameResult response = server.createGame(request);
 
-            return String.format("Your game has been created");
+                return String.format("Your game has been created");
 
-        }
+            } else {
+                throw new ResponseException(400, "Failed to create game, invalid parameters");
+            }
+        } catch (ResponseException e) {
         throw new ResponseException(400, "Failed to create game");
+        }
     }
 
     public String joinGame(String... params) throws ResponseException {
-        if (params.length == 2) {
+        try {
+            if (params.length == 2) {
 
-            String gameNumber = params[0];
-            String color = params[1];
-            ChessGame.TeamColor teamColor = WHITE;
+                String gameNumber = params[0];
+                String color = params[1];
+                ChessGame.TeamColor teamColor = WHITE;
 
-            if (color.equalsIgnoreCase("WHITE")) {
-                teamColor = WHITE;
-            } else if (color.equalsIgnoreCase("BLACK")){
-                teamColor = ChessGame.TeamColor.BLACK;
+                if (color.equalsIgnoreCase("WHITE")) {
+                    teamColor = WHITE;
+                } else if (color.equalsIgnoreCase("BLACK")){
+                    teamColor = ChessGame.TeamColor.BLACK;
+                } else {
+                    throw new ResponseException(400, "Invalid Color");
+                }
+
+                int gameIndex = Integer.parseInt(gameNumber);
+                GameData gameData = gamesWithIDs.get(gameIndex);
+
+
+                JoinGameRequest request = new JoinGameRequest(teamColor, gameData.gameID());
+
+                server.joinGame(request);
+
+                return showGameBoard(gameData, teamColor);
+
             } else {
-                throw new ResponseException(400, "Invalid Color");
+                throw new ResponseException(400, "Failed to join game");
             }
-
-            int gameIndex = Integer.parseInt(gameNumber);
-            GameData gameData = gamesWithIDs.get(gameIndex);
-
-
-            JoinGameRequest request = new JoinGameRequest(teamColor, gameData.gameID());
-
-            server.joinGame(request);
-
-            return showGameBoard(gameData, teamColor);
-
+        } catch (ResponseException e) {
+            throw new ResponseException(400, "Failed to join game");
         }
-        throw new ResponseException(400, "Failed to join game");
     }
 
     public String observe(String... params) throws ResponseException {
-        if (params.length == 1) {
+        try {
+            if (params.length == 1) {
 
-            String gameNumber = params[0];
+                String gameNumber = params[0];
 
-            int gameIndex = Integer.parseInt(gameNumber);
-            GameData gameData = gamesWithIDs.get(gameIndex);
+                int gameIndex = Integer.parseInt(gameNumber);
+                GameData gameData = gamesWithIDs.get(gameIndex);
 
-            showGameBoard(gameData, WHITE);
+                showGameBoard(gameData, WHITE);
 
-            return String.format("You are now observing the game");
+                return String.format("You are now observing the game");
 
+            } else {
+                throw new ResponseException(400, "Failed to observe game");
+            }
+        } catch (ResponseException e) {
+            throw new ResponseException(400, "Failed to observe game");
         }
-        throw new ResponseException(400, "Failed to observe game");
     }
 
     public String help() {
@@ -207,15 +238,20 @@ public class Client {
     }
 
     public String logOut(String... params) throws ResponseException {
-        if (params.length == 0 && server.authToken != null) {
+        try {
+            if (params.length == 0 && server.authToken != null) {
 
-            server.logoutUser(repl.currentAuthToken);
-            state = State.LOGGED_OUT;
-            repl.changeState(State.LOGGED_OUT);
-            return String.format("You're signed out");
+                server.logoutUser(repl.currentAuthToken);
+                state = State.LOGGED_OUT;
+                repl.changeState(State.LOGGED_OUT);
+                return String.format("You're signed out");
 
+            } else {
+                throw new ResponseException(400, "Error logging you out");
+            }
+        } catch (ResponseException e) {
+            throw new ResponseException(400, "Error logging you out");
         }
-        throw new ResponseException(400, "Error logging you out");
     }
 
     private String showGameBoard(GameData game, ChessGame.TeamColor playerColor) {
