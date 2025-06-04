@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import dataaccess.BadRequestException;
 import exception.ResponseException;
 import model.GameData;
@@ -21,7 +22,7 @@ public class ServerFacadeTests {
         int port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
         String portString = String.valueOf(port);
-        facade = new ServerFacade("http://localhost:8080");
+        facade = new ServerFacade("http://localhost:" + portString);
     }
 
     @BeforeEach
@@ -152,6 +153,57 @@ public class ServerFacadeTests {
 
         Assertions.assertThrows(ResponseException.class, () -> {
             facade.createGame(request);
+        });
+
+    }
+
+    @Test
+    void joinGamesPositive() throws Exception {
+        UserData userData = new UserData("player12", "password", "p1@email.com");
+        RegisterResult responseData = facade.registerUser(userData);
+        facade.authToken = responseData.getAuthToken();
+
+        CreateGameRequest request = new CreateGameRequest("testgame");
+        facade.createGame(request);
+
+
+        ListGamesResult result = facade.listGames();
+        Collection<GameData> games = result.getGames();
+
+        GameData game =  games.iterator().next();
+
+        JoinGameRequest joinRequest = new JoinGameRequest(ChessGame.TeamColor.BLACK, game.gameID());
+        facade.joinGame(joinRequest);
+
+        ListGamesResult result1 = facade.listGames();
+        Collection<GameData> games1 = result1.getGames();
+
+        GameData game1 = games1.iterator().next();
+        String username = game1.blackUsername();
+
+        Assertions.assertEquals(username, "player12");
+    }
+
+    @Test
+    void joinGamesNegative() throws Exception {
+
+        UserData userData = new UserData("player12", "password", "p1@email.com");
+        RegisterResult responseData = facade.registerUser(userData);
+        facade.authToken = responseData.getAuthToken();
+
+        CreateGameRequest request = new CreateGameRequest("testgame");
+        facade.createGame(request);
+
+
+        ListGamesResult result = facade.listGames();
+        Collection<GameData> games = result.getGames();
+
+        GameData game =  games.iterator().next();
+
+        JoinGameRequest joinRequest = new JoinGameRequest(ChessGame.TeamColor.BLACK, 123);
+
+        Assertions.assertThrows(ResponseException.class, () -> {
+            facade.joinGame(joinRequest);
         });
 
     }
