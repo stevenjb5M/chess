@@ -2,12 +2,17 @@ package ui;
 
 import java.util.*;
 
+import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import model.GameData;
 import server.*;
 import model.UserData;
 import exception.ResponseException;
 import server.JoinGameRequest;
+
+import static ui.EscapeSequences.*;
 
 public class Client {
     private String visitorName = null;
@@ -15,7 +20,7 @@ public class Client {
     private final String serverUrl;
     private Repl repl;
     private State state = State.LOGGED_OUT;
-    private Map<Integer, Integer> GamesWithIDs = new HashMap<>();
+    private Map<Integer, GameData> GamesWithIDs = new HashMap<>();
 
     public Client(String serverUrl, Repl repl) {
         server = new ServerFacade(serverUrl);
@@ -100,7 +105,7 @@ public class Client {
             for (GameData game: games) {
                 String line = gameNumber + ": " + game.gameName() + " White:" + game.whiteUsername() + " Black:" + game.blackUsername() + "\n";
                 message.append(line);
-                GamesWithIDs.put(gameNumber,game.gameID());
+                GamesWithIDs.put(gameNumber,game);
                 gameNumber++;
             }
 
@@ -141,16 +146,14 @@ public class Client {
             }
 
             int gameIndex = Integer.parseInt(gameNumber);
-            int gameID = GamesWithIDs.get(gameIndex);
+            GameData gameData = GamesWithIDs.get(gameIndex);
 
 
-            JoinGameRequest request = new JoinGameRequest(teamColor, gameID);
+            JoinGameRequest request = new JoinGameRequest(teamColor, gameData.gameID());
 
             server.joinGame(request);
 
-            //return showGameBoard();
-
-            return String.format("You have joined the game successfully");
+            return showGameBoard(gameData, teamColor);
 
         }
         throw new ResponseException(400, "Failed to join game");
@@ -162,7 +165,7 @@ public class Client {
             String gameNumber = params[0];
 
             int gameIndex = Integer.parseInt(gameNumber);
-            int gameID = GamesWithIDs.get(gameIndex);
+            GameData gameData = GamesWithIDs.get(gameIndex);
 
             return String.format("You are now observing the game");
 
@@ -219,7 +222,60 @@ public class Client {
         throw new ResponseException(400, "Error logging you out");
     }
 
-    private void showGameBoard(GameData game, ChessGame.TeamColor playerColor) {
+    private String showGameBoard(GameData game, ChessGame.TeamColor playerColor) {
 
+
+        String RESET = "\u001B[0m";
+
+        //Top ROW
+        System.out.print(SET_BG_COLOR_LIGHT_GREY + "  " + RESET);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY + "a " + RESET);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY + "b " + RESET);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY + "c " + RESET);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY + "d " + RESET);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY + "e " + RESET);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY + "f " + RESET);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY + "g " + RESET);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY + "h " + RESET);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY + "  " + RESET);
+
+        ChessBoard board = game.game().getBoard();
+
+        boolean isLight = true;
+
+        for (int row = 8; row <= 1; row--) {
+            for (int col = 1; col <= 8; row++) {
+                if (col == 1) {
+                    System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + RESET);
+                }
+
+                String color = isLight ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+
+                ChessPosition pos = new ChessPosition(row,col);
+                ChessPiece piece = board.getPiece(pos);
+
+                if (piece != null) {
+                    String letter = piece.getPieceType().toString();
+                    System.out.print(color + "  " + RESET);
+                } else {
+                    System.out.print(color + "  " + RESET);
+                }
+            }
+        }
+
+
+        return "";
+    }
+
+    private String getOneLetterName(ChessPiece.PieceType type) {
+        switch (type) {
+            case KING: { return "K";}
+            case QUEEN: { return "Q";}
+            case KNIGHT: { return "N";}
+            case ROOK: { return "R";}
+            case BISHOP: { return "B";}
+            case PAWN: { return "N";}
+            default: return "";
+        }
     }
 }
