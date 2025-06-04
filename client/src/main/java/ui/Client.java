@@ -168,6 +168,8 @@ public class Client {
             int gameIndex = Integer.parseInt(gameNumber);
             GameData gameData = GamesWithIDs.get(gameIndex);
 
+            showGameBoard(gameData, WHITE);
+
             return String.format("You are now observing the game");
 
         }
@@ -316,6 +318,7 @@ public class Client {
             System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + RESET);
         }
 
+        System.out.println();
 
         return "";
     }
