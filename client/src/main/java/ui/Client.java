@@ -25,6 +25,8 @@ public class Client {
     private NotificationHandler notificationHandler;
     private State state = State.LOGGED_OUT;
     private Map<Integer, GameData> gamesWithIDs = new HashMap<>();
+    private GameData currentGame;
+    private ChessGame.TeamColor currentColor;
 
     public Client(String serverUrl, Repl repl) {
         server = new ServerFacade(serverUrl);
@@ -46,6 +48,11 @@ public class Client {
                 case "create" -> createGame(params);
                 case "join" -> joinGame(params);
                 case "observe" -> observe(params);
+                case "redraw" -> redraw();
+                case "leave" -> leave();
+                case "move" -> move(params);
+                case "resign" -> resign();
+                case "highlight" -> highlight(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -184,6 +191,10 @@ public class Client {
                 webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
                 webSocketFacade.connect(server.authToken, request.getGameID());
 
+                state = State.GAME;
+                currentGame = gameData;
+                currentColor = teamColor;
+
                 return showGameBoard(gameData, teamColor);
 
             } else {
@@ -243,8 +254,17 @@ public class Client {
                 - help - with possible commands
                 """;
             case State.GAME:
-                return "";
+                return """
+                - redraw - redraws the game for visability
+                - leave - removes you from the game
+                - move <CurrentPiecePosition> <NewPiecePosition> - make a chess move on your turn
+                - resign - resign from a game
+                - highlight - highlights user moves
+                - quit - playing chess
+                - help - with possible commands
+                """;
         }
+
 
         return """
                     - register <USERNAME> <PASSWORD> <EMAIL> - to create an account
@@ -270,6 +290,24 @@ public class Client {
             throw new ResponseException(400, "Error logging you out");
         }
     }
+
+    public void redraw() throws ResponseException {
+        try {
+            if (currentGame != null && currentColor != null) {
+                showGameBoard(currentGame, currentColor);
+            } else {
+                throw new ResponseException(400, "Error redrawing board");
+            }
+        } catch (ResponseException e) {
+            throw new ResponseException(400, "Error redrawing board");
+        }
+    }
+
+//
+//                case "leave" -> leave();
+//                case "move" -> move(params);
+//                case "resign" -> resign();
+//                case "highlight" -> highlight(params);
 
     private String showGameBoard(GameData game, ChessGame.TeamColor playerColor) {
 
