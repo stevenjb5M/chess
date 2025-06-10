@@ -291,10 +291,10 @@ public class Client {
         }
     }
 
-    public void redraw() throws ResponseException {
+    public String redraw() throws ResponseException {
         try {
             if (currentGame != null && currentColor != null) {
-                showGameBoard(currentGame, currentColor);
+                return showGameBoard(currentGame, currentColor);
             } else {
                 throw new ResponseException(400, "Error redrawing board");
             }
@@ -303,11 +303,58 @@ public class Client {
         }
     }
 
-//
-//                case "leave" -> leave();
-//                case "move" -> move(params);
-//                case "resign" -> resign();
-//                case "highlight" -> highlight(params);
+    public String leave() throws ResponseException {
+        try {
+            if (currentGame != null && server.authToken != null) {
+                webSocketFacade.leave(server.authToken, currentGame.gameID());
+                return String.format("You have left the game");
+            } else {
+                throw new ResponseException(400, "Error leaving game");
+            }
+        } catch (ResponseException e) {
+            throw new ResponseException(400, "Error leaving game");
+        }
+    }
+
+    public String resign() throws ResponseException {
+        try {
+            if (currentGame != null && server.authToken != null) {
+                webSocketFacade.resign(server.authToken, currentGame.gameID());
+                return String.format("You have resigned");
+            } else {
+                throw new ResponseException(400, "Error resigning");
+            }
+        } catch (ResponseException e) {
+            throw new ResponseException(400, "Error resigning");
+        }
+    }
+
+
+    public String move(String... params) throws ResponseException {
+        try {
+            if (params.length == 2 && currentGame != null) {
+                webSocketFacade.makeMove(server.authToken, currentGame.gameID());
+                return String.format("Piece Moved!");
+            } else {
+                throw new ResponseException(400, "Error moving piece");
+            }
+        } catch (ResponseException e) {
+            throw new ResponseException(400, "Error moving piece");
+        }
+    }
+
+    public String highlight(String... params) throws ResponseException {
+        try {
+            if (params.length == 1 && currentGame != null) {
+                return String.format("Piece Highlighted!");
+            } else {
+                throw new ResponseException(400, "Error highlighting piece");
+            }
+        } catch (ResponseException e) {
+            throw new ResponseException(400, "Error highlighting piece");
+        }
+    }
+
 
     private String showGameBoard(GameData game, ChessGame.TeamColor playerColor) {
 
