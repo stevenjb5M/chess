@@ -10,6 +10,8 @@ import model.GameData;
 import server.*;
 import model.UserData;
 import exception.ResponseException;
+import websocket.NotificationHandler;
+import websocket.WebSocketFacade;
 
 import static chess.ChessGame.TeamColor.WHITE;
 import static ui.EscapeSequences.*;
@@ -19,12 +21,15 @@ public class Client {
     private final ServerFacade server;
     private final String serverUrl;
     private Repl repl;
+    private WebSocketFacade webSocketFacade;
+    private NotificationHandler notificationHandler;
     private State state = State.LOGGED_OUT;
     private Map<Integer, GameData> gamesWithIDs = new HashMap<>();
 
     public Client(String serverUrl, Repl repl) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
+        this.notificationHandler = repl;
         this.repl = repl;
     }
 
@@ -67,6 +72,8 @@ public class Client {
                 server.authToken = response.getAuthToken();
                 state = State.LOGGED_IN;
                 repl.changeState(State.LOGGED_IN);
+                webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
+                webSocketFacade.connect(server.authToken, 0);
                 visitorName = userName;
                 return String.format("You signed in as %s.", visitorName);
 
