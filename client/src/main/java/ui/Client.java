@@ -64,6 +64,7 @@ public class Client {
                 UserData newUser = new UserData(userName, password, email);
 
                 RegisterResult response = server.registerUser(newUser);
+                server.authToken = response.getAuthToken();
                 state = State.LOGGED_IN;
                 repl.changeState(State.LOGGED_IN);
                 visitorName = userName;
