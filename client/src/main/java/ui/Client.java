@@ -72,8 +72,6 @@ public class Client {
                 server.authToken = response.getAuthToken();
                 state = State.LOGGED_IN;
                 repl.changeState(State.LOGGED_IN);
-                webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
-                webSocketFacade.connect(server.authToken, 0);
                 visitorName = userName;
                 return String.format("You signed in as %s.", visitorName);
 
@@ -183,6 +181,9 @@ public class Client {
 
                 server.joinGame(request);
 
+                webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
+                webSocketFacade.connect(server.authToken, request.getGameID());
+
                 return showGameBoard(gameData, teamColor);
 
             } else {
@@ -203,7 +204,11 @@ public class Client {
                 GameData gameData = gamesWithIDs.get(gameIndex);
 
                 if (gameData != null) {
+                    webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
+                    webSocketFacade.connect(server.authToken, gameData.gameID());
+
                     showGameBoard(gameData, WHITE);
+
                 } else {
                     throw new ResponseException(400, "No game found, run list to see what games are available");
                 }
