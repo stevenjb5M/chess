@@ -1,7 +1,10 @@
 package ui;
 
+import websocket.messages.ServerMessage;
+
 import java.util.Scanner;
 
+import static java.awt.Color.RED;
 import static ui.EscapeSequences.SET_TEXT_COLOR_BLACK;
 import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 
@@ -44,6 +47,11 @@ public class Repl {
         } else if (newState == State.GAME) {
             //client = new GameClient(serverURL);
         }
+    }
+
+    public void notify(ServerMessage notification) {
+        System.out.println(RED + notification.message);
+        printPrompt();
     }
 
     private void printPrompt() {
