@@ -20,11 +20,11 @@ public class ConnectionManager {
         connections.remove(visitorName);
     }
 
-    public void broadcast(String excludeVisitorName, ServerMessage notification) throws IOException {
+    public void broadcastError(String visitorName, ServerMessage notification) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (!c.visitorName.equals(excludeVisitorName)) {
+                if (c.visitorName.equals(visitorName)) {
                     var messageAsJson =  new Gson().toJson(notification);
                     c.send(messageAsJson);
                 }
@@ -38,4 +38,43 @@ public class ConnectionManager {
             connections.remove(c.visitorName);
         }
     }
+
+    public void broadcastLoad(String excludeVisitorName, ServerMessage notification) throws IOException {
+        var removeList = new ArrayList<Connection>();
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (c.visitorName.equals(excludeVisitorName)) {
+                    var messageAsJson =  new Gson().toJson(notification);
+                    c.send(messageAsJson);
+                }
+            } else {
+                removeList.add(c);
+            }
+        }
+
+        // Clean up any connections that were left open.
+        for (var c : removeList) {
+            connections.remove(c.visitorName);
+        }
+    }
+
+    public void broadcastInGame(String excludeVisitorName, ServerMessage notification) throws IOException {
+        var removeList = new ArrayList<Connection>();
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (!c.visitorName.equals(excludeVisitorName)) {
+                var messageAsJson =  new Gson().toJson(notification);
+                c.send(messageAsJson);
+                }
+            } else {
+                removeList.add(c);
+            }
+        }
+
+        // Clean up any connections that were left open.
+        for (var c : removeList) {
+            connections.remove(c.visitorName);
+        }
+    }
+
 }
