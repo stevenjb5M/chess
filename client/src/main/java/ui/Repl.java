@@ -6,8 +6,7 @@ import websocket.messages.ServerMessage;
 import java.util.Scanner;
 
 import static java.awt.Color.RED;
-import static ui.EscapeSequences.SET_TEXT_COLOR_BLACK;
-import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
+import static ui.EscapeSequences.*;
 
 public class Repl implements NotificationHandler {
     private Client client;
@@ -51,12 +50,12 @@ public class Repl implements NotificationHandler {
     }
 
     public void notify(ServerMessage notification) {
-        System.out.println(RED + notification.message);
+        System.out.println(SET_TEXT_COLOR_RED + notification.message);
         printPrompt();
     }
 
     private void printPrompt() {
-        System.out.print("\n" + state + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + SET_TEXT_COLOR_BLACK + state + ">>> ");
     }
 
 }

@@ -23,7 +23,7 @@ public class WebSocketHandler {
         UserGameCommand action = new Gson().fromJson(message, UserGameCommand.class);
         switch (action.getCommandType()) {
             case CONNECT -> {
-                connect("Steven", action.getGameID(), session);
+                connect(action.userName, action.getGameID(), session);
             }
             case MAKE_MOVE -> {
             }

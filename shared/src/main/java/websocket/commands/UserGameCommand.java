@@ -16,7 +16,7 @@ public class UserGameCommand {
 
     private final Integer gameID;
 
-    private String userName;
+    public String userName;
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID, String userName) {
         this.commandType = commandType;
