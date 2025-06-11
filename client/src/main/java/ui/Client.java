@@ -189,7 +189,7 @@ public class Client {
                 server.joinGame(request);
 
                 webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
-                webSocketFacade.connect(server.authToken, request.getGameID());
+                webSocketFacade.connect(server.authToken, request.getGameID(), visitorName);
 
                 state = State.GAME;
                 currentGame = gameData;
@@ -216,7 +216,7 @@ public class Client {
 
                 if (gameData != null) {
                     webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
-                    webSocketFacade.connect(server.authToken, gameData.gameID());
+                    webSocketFacade.connect(server.authToken, gameData.gameID(),visitorName);
 
                     showGameBoard(gameData, WHITE);
 
@@ -306,7 +306,7 @@ public class Client {
     public String leave() throws ResponseException {
         try {
             if (currentGame != null && server.authToken != null) {
-                webSocketFacade.leave(server.authToken, currentGame.gameID());
+                webSocketFacade.leave(server.authToken, currentGame.gameID(), visitorName);
                 return String.format("You have left the game");
             } else {
                 throw new ResponseException(400, "Error leaving game");
@@ -319,7 +319,7 @@ public class Client {
     public String resign() throws ResponseException {
         try {
             if (currentGame != null && server.authToken != null) {
-                webSocketFacade.resign(server.authToken, currentGame.gameID());
+                webSocketFacade.resign(server.authToken, currentGame.gameID(), visitorName);
                 return String.format("You have resigned");
             } else {
                 throw new ResponseException(400, "Error resigning");
@@ -333,7 +333,7 @@ public class Client {
     public String move(String... params) throws ResponseException {
         try {
             if (params.length == 2 && currentGame != null) {
-                webSocketFacade.makeMove(server.authToken, currentGame.gameID());
+                webSocketFacade.makeMove(server.authToken, currentGame.gameID(), visitorName);
                 return String.format("Piece Moved!");
             } else {
                 throw new ResponseException(400, "Error moving piece");

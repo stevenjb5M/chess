@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.*;
 import model.GameData;
+import server.websocket.WebSocketHandler;
 import service.*;
 import spark.*;
 import java.util.Collection;
@@ -12,6 +13,7 @@ public class Server {
     private final UserService userService;
     private final GameService gameService;
     private final AuthService authService;
+    private final WebSocketHandler webSocketHandler;
 
 
     public Server() {
@@ -20,14 +22,16 @@ public class Server {
         SQLGameDAO gameDAQ = new SQLGameDAO();
         this.authService = new AuthService(authDAQ);
         this.userService = new UserService(userDAO, authService);
-
         this.gameService = new GameService(gameDAQ);
+        webSocketHandler = new WebSocketHandler();
     }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/ws", webSocketHandler);
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", this::register);
@@ -43,7 +47,10 @@ public class Server {
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
 
+
+
         Spark.awaitInitialization();
+
         return Spark.port();
     }
 
