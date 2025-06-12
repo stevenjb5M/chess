@@ -16,6 +16,7 @@ public interface GameDAO {
     GameData joinGame(JoinGameRequest request, String username) throws DataAccessException;
 
     void removePlayer(int gameID, String playername) throws DataAccessException;
+    void resign(int gameID) throws DataAccessException;
 
     Collection<GameData> listGames() throws DataAccessException;
 

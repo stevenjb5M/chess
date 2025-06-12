@@ -38,6 +38,11 @@ public class MemoryGameDAQ implements GameDAO {
     }
 
     @Override
+    public void resign(int gameID) throws DataAccessException {
+
+    }
+
+    @Override
     public GameData joinGame(JoinGameRequest request, String username) throws DataAccessException {
         GameData data = games.get(request.getGameID());
         if (request.getPlayerColor() == ChessGame.TeamColor.WHITE) {

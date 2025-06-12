@@ -54,6 +54,14 @@ public class GameService {
         }
     }
 
+    public void resign(int gameID) throws DataAccessException {
+        if (this.gameDAO.getGame(gameID) != null) {
+            this.gameDAO.resign(gameID);
+        } else {
+            throw new BadRequestException();
+        }
+    }
+
     public Collection<GameData> listGames() throws DataAccessException {
         return gameDAO.listGames();
     }

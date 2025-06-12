@@ -83,7 +83,7 @@ public class WebSocketHandler {
         GameService gameService = new GameService(gameDAO);
         Collection<GameData> games = gameService.listGames();
 
-        connections.add(playername, session);
+        connections.add(gameID,playername, session);
 
 
 
@@ -97,15 +97,14 @@ public class WebSocketHandler {
 
         if (!found) {
             var notificationError = ServerMessage.error("Error, invalid game ID");
-            connections.broadcastLoad(playername, notificationError);
-            throw new IOException("Error: Game ID was wrong");
+session.getRemote().sendString(new Gson().toJson(notificationError));            throw new IOException("Error: Game ID was wrong");
         }
 
         var message = String.format("%s has joined the game", playername);
         var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
         var notification1 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcastLoad(playername, notification);
-        connections.broadcastInGame(playername, notification1);
+        session.getRemote().sendString(new Gson().toJson(notification));
+        connections.broadcastInGame(gameID,playername, notification1);
     }
 
     private void makeMove(int gameID, String token, Session session) throws IOException, DataAccessException {
@@ -140,11 +139,16 @@ public class WebSocketHandler {
 
         if (!found) {
             var notificationError = ServerMessage.error("Error, invalid game ID");
-            connections.broadcastLoad(playername, notificationError);
-            throw new IOException("Error: Game ID was wrong");
+session.getRemote().sendString(new Gson().toJson(notificationError));            throw new IOException("Error: Game ID was wrong");
         }
 
         ChessGame game = thisGameData.game();
+
+        if (game.gameOver) {
+            var notificationError = ServerMessage.error("Error, game is over");
+session.getRemote().sendString(new Gson().toJson(notificationError));            throw new IOException("Error: game is over");
+        }
+
 
         try {
             if (chessMove != null) {
@@ -159,22 +163,19 @@ public class WebSocketHandler {
                     var message = String.format("%s has made a move", playername);
                     var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
                     var notification2 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                    connections.broadcastAllGame(notification);
-                    connections.broadcastInGame(playername, notification2);
+                    connections.broadcastAllGame(gameID, notification);
+                    connections.broadcastInGame(gameID, playername, notification2);
                 } else {
                     var notificationError = ServerMessage.error("Error, invalid move, wrong color");
-                    connections.broadcastLoad(playername, notificationError);
-                    throw new IOException("Error: invalid move wrong color");
+        session.getRemote().sendString(new Gson().toJson(notificationError));                    throw new IOException("Error: invalid move wrong color");
                 }
             } else {
                 var notificationError = ServerMessage.error("Error, invalid move");
-                connections.broadcastLoad(playername, notificationError);
-                throw new IOException("Error: invalid move");
+    session.getRemote().sendString(new Gson().toJson(notificationError));                throw new IOException("Error: invalid move");
             }
         } catch (InvalidMoveException e) {
             var notificationError = ServerMessage.error("Error, invalid move");
-            connections.broadcastLoad(playername, notificationError);
-            throw new IOException("Error: invalid move");
+session.getRemote().sendString(new Gson().toJson(notificationError));            throw new IOException("Error: invalid move");
         }
 
 
@@ -212,44 +213,26 @@ public class WebSocketHandler {
 
         if (!found) {
             var notificationError = ServerMessage.error("Error, invalid game ID");
-            connections.broadcastLoad(playername, notificationError);
-            throw new IOException("Error: Game ID was wrong");
+session.getRemote().sendString(new Gson().toJson(notificationError));            throw new IOException("Error: Game ID was wrong");
         }
 
         ChessGame game = thisGameData.game();
 
-        try {
-            if (chessMove != null) {
-
-                ChessPiece movePiece = game.getBoard().getPiece(chessMove.getStartPosition());
-                var isWhite = playername.equals(thisGameData.whiteUsername());
-                if (isWhite ? movePiece.getTeamColor() == ChessGame.TeamColor.WHITE : movePiece.getTeamColor() == ChessGame.TeamColor.BLACK) {
-                    game.makeMove(chessMove);
-                    GameData newGameData = new GameData(thisGameData.gameID(), thisGameData.whiteUsername(), thisGameData.blackUsername(), thisGameData.gameName(), game);
-                    gameDAO.updateGame(newGameData);
-
-                    var message = String.format("%s has made a move", playername);
-                    var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
-                    var notification2 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                    connections.broadcastAllGame(notification);
-                    connections.broadcastInGame(playername, notification2);
-                } else {
-                    var notificationError = ServerMessage.error("Error, invalid move, wrong color");
-                    connections.broadcastLoad(playername, notificationError);
-                    throw new IOException("Error: invalid move wrong color");
-                }
-            } else {
-                var notificationError = ServerMessage.error("Error, invalid move");
-                connections.broadcastLoad(playername, notificationError);
-                throw new IOException("Error: invalid move");
-            }
-        } catch (InvalidMoveException e) {
-            var notificationError = ServerMessage.error("Error, invalid move");
-            connections.broadcastLoad(playername, notificationError);
-            throw new IOException("Error: invalid move");
+        if (game.gameOver) {
+            var notificationError = ServerMessage.error("Error, invalid game ID");
+session.getRemote().sendString(new Gson().toJson(notificationError));            throw new IOException("Error: Game ID was wrong");
         }
 
+        if (game != null && (playername.equals(thisGameData.blackUsername()) || playername.equals(thisGameData.whiteUsername()))) {
+            gameService.resign(gameID);
 
+            var message = String.format("%s has resigned", playername);
+            var notification2 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+            connections.broadcastAllGame(gameID, notification2);
+        } else {
+            var notificationError = ServerMessage.error("Error, invalid resign");
+session.getRemote().sendString(new Gson().toJson(notificationError));            throw new IOException("Error: invalid resign");
+        }
 
     }
 
@@ -284,8 +267,7 @@ public class WebSocketHandler {
 
         if (!found) {
             var notificationError = ServerMessage.error("Error, invalid game ID");
-            connections.broadcastLoad(playername, notificationError);
-            throw new IOException("Error: Game ID was wrong");
+session.getRemote().sendString(new Gson().toJson(notificationError));            throw new IOException("Error: Game ID was wrong");
         }
 
         ChessGame game = thisGameData.game();
@@ -295,12 +277,11 @@ public class WebSocketHandler {
 
                 var message = String.format("%s has left the game", playername);
                 var notification2 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                connections.remove(playername);
-                connections.broadcastInGame(playername, notification2);
+                connections.remove(gameID, playername);
+                connections.broadcastInGame(gameID, playername, notification2);
             } else {
                 var notificationError = ServerMessage.error("Error, invalid move");
-                connections.broadcastLoad(playername, notificationError);
-                throw new IOException("Error: invalid move");
+    session.getRemote().sendString(new Gson().toJson(notificationError));                throw new IOException("Error: invalid move");
             }
 
     }

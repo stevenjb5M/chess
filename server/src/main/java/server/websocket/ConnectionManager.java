@@ -9,58 +9,27 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
-    public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, ConcurrentHashMap<String, Connection>> gameConnections = new ConcurrentHashMap<>();
 
-    public void add(String visitorName, Session session) {
+    public void add(int gameID, String visitorName, Session session) {
+        gameConnections.putIfAbsent(gameID, new ConcurrentHashMap<>());
         var connection = new Connection(visitorName, session);
-        connections.put(visitorName, connection);
+        gameConnections.get(gameID).put(visitorName, connection);
     }
 
-    public void remove(String visitorName) {
-        connections.remove(visitorName);
+    public void remove(int gameID, String visitorName) {
+        gameConnections.get(gameID).remove(visitorName);
+        if (gameConnections.get(gameID).isEmpty()) {
+            gameConnections.remove(gameID);
+        }
     }
 
-    public void broadcastError(String visitorName, ServerMessage notification) throws IOException {
+    public void broadcastInGame(int gameID, String excludeVisitorName, ServerMessage notification) throws IOException {
         var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
-            if (c.session.isOpen()) {
-                if (c.visitorName.equals(visitorName)) {
-                    var messageAsJson =  new Gson().toJson(notification);
-                    c.send(messageAsJson);
-                }
-            } else {
-                removeList.add(c);
-            }
-        }
 
-        // Clean up any connections that were left open.
-        for (var c : removeList) {
-            connections.remove(c.visitorName);
-        }
-    }
+        var game = gameConnections.get(gameID);
 
-    public void broadcastLoad(String excludeVisitorName, ServerMessage notification) throws IOException {
-        var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
-            if (c.session.isOpen()) {
-                if (c.visitorName.equals(excludeVisitorName)) {
-                    var messageAsJson =  new Gson().toJson(notification);
-                    c.send(messageAsJson);
-                }
-            } else {
-                removeList.add(c);
-            }
-        }
-
-        // Clean up any connections that were left open.
-        for (var c : removeList) {
-            connections.remove(c.visitorName);
-        }
-    }
-
-    public void broadcastInGame(String excludeVisitorName, ServerMessage notification) throws IOException {
-        var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
+        for (var c : game.values()) {
             if (c.session.isOpen()) {
                 if (!c.visitorName.equals(excludeVisitorName)) {
                 var messageAsJson =  new Gson().toJson(notification);
@@ -73,13 +42,16 @@ public class ConnectionManager {
 
         // Clean up any connections that were left open.
         for (var c : removeList) {
-            connections.remove(c.visitorName);
+            game.remove(c.visitorName);
         }
     }
 
-    public void broadcastAllGame(ServerMessage notification) throws IOException {
+    public void broadcastAllGame(int gameID, ServerMessage notification) throws IOException {
         var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
+
+        var game = gameConnections.get(gameID);
+
+        for (var c : game.values()) {
             if (c.session.isOpen()) {
                     var messageAsJson =  new Gson().toJson(notification);
                     c.send(messageAsJson);
@@ -88,8 +60,9 @@ public class ConnectionManager {
             }
         }
 
+        // Clean up any connections that were left open.
         for (var c : removeList) {
-            connections.remove(c.visitorName);
+            game.remove(c.visitorName);
         }
     }
 

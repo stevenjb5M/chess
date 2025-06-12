@@ -113,6 +113,7 @@ public class SQLGameDAO implements GameDAO {
         return games;
     }
 
+
     public void removePlayer(int gameID, String playerName) throws DataAccessException {
         try {
         GameData game = getGame(gameID);
@@ -127,6 +128,24 @@ public class SQLGameDAO implements GameDAO {
                 updateGame(newGame);
             }
         }} catch (DataAccessException e) {
+            throw new DataAccessException("unable to update database:", e);
+        }
+    }
+
+    public void resign(int gameID) throws DataAccessException {
+        try {
+            GameData game = getGame(gameID);
+            if (game != null) {
+
+                ChessGame game1 = game.game();
+
+                game1.gameOver = true;
+
+                GameData gameData = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game1);
+
+                updateGame(gameData);
+
+            }} catch (DataAccessException e) {
             throw new DataAccessException("unable to update database:", e);
         }
     }
