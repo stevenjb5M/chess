@@ -77,4 +77,20 @@ public class ConnectionManager {
         }
     }
 
+    public void broadcastAllGame(ServerMessage notification) throws IOException {
+        var removeList = new ArrayList<Connection>();
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                    var messageAsJson =  new Gson().toJson(notification);
+                    c.send(messageAsJson);
+            } else {
+                removeList.add(c);
+            }
+        }
+
+        for (var c : removeList) {
+            connections.remove(c.visitorName);
+        }
+    }
+
 }

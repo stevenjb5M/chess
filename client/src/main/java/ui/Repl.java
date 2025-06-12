@@ -1,5 +1,6 @@
 package ui;
 
+import exception.ResponseException;
 import websocket.NotificationHandler;
 import websocket.messages.ServerMessage;
 
@@ -45,12 +46,19 @@ public class Repl implements NotificationHandler {
         } else if (newState == State.LOGGED_OUT) {
             state = State.LOGGED_OUT;
         } else if (newState == State.GAME) {
-            //client = new GameClient(serverURL);
+            state = State.GAME;
         }
     }
 
     public void notify(ServerMessage notification) {
-        if (notification.message != null) {
+        if (notification.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+            try {
+                client.redraw();
+                printPrompt();
+            } catch (ResponseException e) {
+                throw new RuntimeException(e);
+            }
+        } else if (notification.message != null) {
             System.out.println(SET_TEXT_COLOR_RED + notification.message);
             printPrompt();
         }

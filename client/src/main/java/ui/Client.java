@@ -189,10 +189,12 @@ public class Client {
                 webSocketFacade.connect(server.authToken, request.getGameID(), visitorName);
 
                 state = State.GAME;
+                repl.changeState(State.GAME);
                 currentGame = gameData;
                 currentColor = teamColor;
 
-                return showGameBoard(gameData, teamColor);
+                return "Joined Game";
+                //showGameBoard(gameData, teamColor);
 
             } else {
                 throw new ResponseException(400, "Failed to join game");
@@ -291,6 +293,7 @@ public class Client {
     public String redraw() throws ResponseException {
         try {
             if (currentGame != null && currentColor != null) {
+                updateCurrentGame(currentGame.gameID());
                 return showGameBoard(currentGame, currentColor);
             } else {
                 throw new ResponseException(400, "Error redrawing board");
@@ -416,6 +419,8 @@ public class Client {
     private String showGameBoard(GameData game, ChessGame.TeamColor playerColor) {
 
         String reset = "\u001B[0m";
+
+        System.out.println();
 
         runHeaders(playerColor,reset);
 
@@ -570,6 +575,29 @@ public class Client {
             System.out.print(SET_BG_COLOR_LIGHT_GREY + " b " + reset);
             System.out.print(SET_BG_COLOR_LIGHT_GREY + " a " + reset);
             System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + reset);
+        }
+    }
+
+    private void updateCurrentGame(int gameID) {
+        ListGamesResult result = null;
+        try {
+            result = server.listGames();
+            Collection<GameData> games = result.getGames();
+
+            int gameNumber = 1;
+
+            gamesWithIDs.clear();
+
+            for (GameData game: games) {
+                if (game.gameID() == currentGame.gameID()) {
+                    currentGame = game;
+                }
+                gamesWithIDs.put(gameNumber,game);
+                gameNumber++;
+            }
+
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
         }
     }
 }

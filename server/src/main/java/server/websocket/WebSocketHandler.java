@@ -1,5 +1,6 @@
 package server.websocket;
 
+import chess.*;
 import com.google.gson.Gson;
 import dataaccess.*;
 import exception.ResponseException;
@@ -10,6 +11,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import service.AuthService;
 import service.GameService;
 import spark.Spark;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -23,6 +25,7 @@ public class WebSocketHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
     private String userName = "";
+    private ChessMove chessMove;
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
@@ -38,14 +41,26 @@ public class WebSocketHandler {
             }
             case MAKE_MOVE -> {
                 try {
-                    makeMove(action.getGameID(), action.getAuthToken(), session);
+                    MakeMoveCommand move = new Gson().fromJson(message, MakeMoveCommand.class);
+                    chessMove = move.move;
+                    makeMove(move.getGameID(), move.getAuthToken(), session);
                 } catch (DataAccessException e) {
                     throw new RuntimeException(e);
                 }
             }
             case LEAVE -> {
+                try {
+                    leave(action.getGameID(), action.getAuthToken(), session);
+                } catch (DataAccessException e) {
+                    throw new RuntimeException(e);
+                }
             }
             case RESIGN -> {
+                try {
+                    resign(action.getGameID(), action.getAuthToken(), session);
+                } catch (DataAccessException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
@@ -107,17 +122,17 @@ public class WebSocketHandler {
 
         String playername = authService.getUserByAuth(token);
 
-        GameDAO gameDAO = new SQLGameDAO();
+        SQLGameDAO gameDAO = new SQLGameDAO();
         GameService gameService = new GameService(gameDAO);
         Collection<GameData> games = gameService.listGames();
-
         //connections.add(playername, session);
-
+        GameData thisGameData = null;
 
 
         boolean found = false;
         for (GameData gameData : games) {
             if (gameData.gameID() == gameID) {
+                thisGameData = gameData;
                 found = true;
                 break;
             }
@@ -129,12 +144,176 @@ public class WebSocketHandler {
             throw new IOException("Error: Game ID was wrong");
         }
 
-        var message = String.format("%s has made a move", playername);
-        //var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
-        var notification1 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        //connections.broadcastLoad(playername, notification);
-        connections.broadcastInGame(playername, notification1);
+        ChessGame game = thisGameData.game();
+
+        try {
+            if (chessMove != null) {
+
+                ChessPiece movePiece = game.getBoard().getPiece(chessMove.getStartPosition());
+                var isWhite = playername.equals(thisGameData.whiteUsername());
+                if (isWhite ? movePiece.getTeamColor() == ChessGame.TeamColor.WHITE : movePiece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+                    game.makeMove(chessMove);
+                    GameData newGameData = new GameData(thisGameData.gameID(), thisGameData.whiteUsername(), thisGameData.blackUsername(), thisGameData.gameName(), game);
+                    gameDAO.updateGame(newGameData);
+
+                    var message = String.format("%s has made a move", playername);
+                    var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
+                    var notification2 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                    connections.broadcastAllGame(notification);
+                    connections.broadcastInGame(playername, notification2);
+                } else {
+                    var notificationError = ServerMessage.error("Error, invalid move, wrong color");
+                    connections.broadcastLoad(playername, notificationError);
+                    throw new IOException("Error: invalid move wrong color");
+                }
+            } else {
+                var notificationError = ServerMessage.error("Error, invalid move");
+                connections.broadcastLoad(playername, notificationError);
+                throw new IOException("Error: invalid move");
+            }
+        } catch (InvalidMoveException e) {
+            var notificationError = ServerMessage.error("Error, invalid move");
+            connections.broadcastLoad(playername, notificationError);
+            throw new IOException("Error: invalid move");
+        }
+
+
+
     }
+
+    private void resign(int gameID, String token, Session session) throws IOException, DataAccessException {
+
+        AuthDAO authDAO = new SQLAuthDAO();
+        AuthService authService = new AuthService(authDAO);
+
+        if (!authService.checkIfAuthExisits(token)) {
+            var notificationError = ServerMessage.error("Error, invalid auth token");
+            var errorMessage = new Gson().toJson(notificationError);
+            session.getRemote().sendString(errorMessage);
+            throw new IOException("Error: Auth token was wrong");
+        }
+
+        String playername = authService.getUserByAuth(token);
+
+        SQLGameDAO gameDAO = new SQLGameDAO();
+        GameService gameService = new GameService(gameDAO);
+        Collection<GameData> games = gameService.listGames();
+        //connections.add(playername, session);
+        GameData thisGameData = null;
+
+        boolean found = false;
+        for (GameData gameData : games) {
+            if (gameData.gameID() == gameID) {
+                thisGameData = gameData;
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            var notificationError = ServerMessage.error("Error, invalid game ID");
+            connections.broadcastLoad(playername, notificationError);
+            throw new IOException("Error: Game ID was wrong");
+        }
+
+        ChessGame game = thisGameData.game();
+
+        try {
+            if (chessMove != null) {
+
+                ChessPiece movePiece = game.getBoard().getPiece(chessMove.getStartPosition());
+                var isWhite = playername.equals(thisGameData.whiteUsername());
+                if (isWhite ? movePiece.getTeamColor() == ChessGame.TeamColor.WHITE : movePiece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+                    game.makeMove(chessMove);
+                    GameData newGameData = new GameData(thisGameData.gameID(), thisGameData.whiteUsername(), thisGameData.blackUsername(), thisGameData.gameName(), game);
+                    gameDAO.updateGame(newGameData);
+
+                    var message = String.format("%s has made a move", playername);
+                    var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
+                    var notification2 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                    connections.broadcastAllGame(notification);
+                    connections.broadcastInGame(playername, notification2);
+                } else {
+                    var notificationError = ServerMessage.error("Error, invalid move, wrong color");
+                    connections.broadcastLoad(playername, notificationError);
+                    throw new IOException("Error: invalid move wrong color");
+                }
+            } else {
+                var notificationError = ServerMessage.error("Error, invalid move");
+                connections.broadcastLoad(playername, notificationError);
+                throw new IOException("Error: invalid move");
+            }
+        } catch (InvalidMoveException e) {
+            var notificationError = ServerMessage.error("Error, invalid move");
+            connections.broadcastLoad(playername, notificationError);
+            throw new IOException("Error: invalid move");
+        }
+
+
+
+    }
+
+    private void leave(int gameID, String token, Session session) throws IOException, DataAccessException {
+
+        AuthDAO authDAO = new SQLAuthDAO();
+        AuthService authService = new AuthService(authDAO);
+
+        if (!authService.checkIfAuthExisits(token)) {
+            var notificationError = ServerMessage.error("Error, invalid auth token");
+            var errorMessage = new Gson().toJson(notificationError);
+            session.getRemote().sendString(errorMessage);
+            throw new IOException("Error: Auth token was wrong");
+        }
+
+        String playername = authService.getUserByAuth(token);
+
+        SQLGameDAO gameDAO = new SQLGameDAO();
+        GameService gameService = new GameService(gameDAO);
+        Collection<GameData> games = gameService.listGames();
+        //connections.add(playername, session);
+        GameData thisGameData = null;
+
+        boolean found = false;
+        for (GameData gameData : games) {
+            if (gameData.gameID() == gameID) {
+                thisGameData = gameData;
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            var notificationError = ServerMessage.error("Error, invalid game ID");
+            connections.broadcastLoad(playername, notificationError);
+            throw new IOException("Error: Game ID was wrong");
+        }
+
+        ChessGame game = thisGameData.game();
+
+        try {
+            if (game != null) {
+
+
+                var message = String.format("%s has made a move", playername);
+                var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
+                var notification2 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                connections.broadcastAllGame(notification);
+                connections.broadcastInGame(playername, notification2);
+            } else {
+                var notificationError = ServerMessage.error("Error, invalid move");
+                connections.broadcastLoad(playername, notificationError);
+                throw new IOException("Error: invalid move");
+            }
+        } catch (InvalidMoveException e) {
+            var notificationError = ServerMessage.error("Error, invalid move");
+            connections.broadcastLoad(playername, notificationError);
+            throw new IOException("Error: invalid move");
+        }
+
+
+
+    }
+
 
 //    private void exit(String visitorName) throws IOException {
 //        connections.remove(visitorName);

@@ -113,6 +113,10 @@ public class SQLGameDAO implements GameDAO {
         return games;
     }
 
+    public void removePlayer(int gameID, String playerName) {
+
+    }
+
     @Override
     public void clearGames() throws DataAccessException {
         var statement = "TRUNCATE game";
@@ -154,7 +158,7 @@ public class SQLGameDAO implements GameDAO {
             """
     };
 
-    private void updateGame(GameData game) throws DataAccessException {
+    public void updateGame(GameData game) throws DataAccessException {
         String sql = "UPDATE game set gameName = ?, json = ? WHERE gameId = ?";
 
         try (var conn = DatabaseManager.getConnection();

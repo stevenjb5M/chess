@@ -13,12 +13,12 @@ import java.util.Objects;
  */
 public class MakeMoveCommand extends UserGameCommand {
 
-    private final ChessMove chessMove;
+    public ChessMove move;
 
     public MakeMoveCommand(CommandType commandType, String authToken, Integer gameID, ChessMove move, String userName) {
         super(commandType,authToken,gameID, userName);
 
-        this.chessMove = move;
+        this.move = move;
     }
 
 }
