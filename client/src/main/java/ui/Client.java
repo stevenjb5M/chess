@@ -345,12 +345,18 @@ public class Client {
 
                 Collection<ChessMove> moves = currentGame.game().validMoves(currentPosition);
 
-                if (moves.size() > 0) {
                     var found = false;
                     for (ChessMove move : moves) {
                         int moveStartRow = move.getStartPosition().getRow();
                         int moveStartCol = move.getStartPosition().getColumn();
-                        if (moveStartRow == currentPosition.getRow() && moveStartCol == currentPosition.getColumn() && move.getEndPosition().getRow() == nextPosition.getRow() && move.getEndPosition().getColumn() == nextPosition.getColumn()) {
+                        int currentRow = currentPosition.getRow();
+                        int currentCol = currentPosition.getColumn();
+
+                        int moveEndRow = move.getEndPosition().getRow();
+                        int moveEndCol = move.getEndPosition().getColumn();
+                        int nextRow = nextPosition.getRow();
+                        int nextCol = nextPosition.getColumn();
+                        if (moveStartRow == currentRow && moveStartCol == currentCol && moveEndRow == nextRow && moveEndCol == nextCol) {
                             webSocketFacade.makeMove(server.authToken, currentGame.gameID(), visitorName, move);
                             found = true;
                             break;
@@ -359,11 +365,6 @@ public class Client {
                     if (!found) {
                         throw new ResponseException(400, "Error moving piece");
                     }
-
-                } else {
-                    throw new ResponseException(400, "Error moving piece");
-                }
-
                 return String.format("Piece Moved!");
             } else {
                 throw new ResponseException(400, "Error moving piece");
