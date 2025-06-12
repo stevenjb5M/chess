@@ -350,7 +350,7 @@ public class Client {
                 ChessPosition pos = new ChessPosition(row,col);
                 Collection<ChessMove> moves = currentGame.game().validMoves(pos);
 
-
+                highlightGameBoard(currentGame, currentColor, moves);
 
                 return String.format("Piece Highlighted!");
             } else {
@@ -366,21 +366,21 @@ public class Client {
 
         switch (letter) {
             case "a" :
-                return isWhite ? 1 : 8;
+                return 1;
             case "b" :
-                return isWhite ? 2 : 7;
+                return 2;
             case "c" :
-                return isWhite ? 3 : 6;
+                return 3;
             case "d" :
-                return isWhite ? 4 : 5;
+                return 4;
             case "e" :
-                return isWhite ? 5 : 4;
+                return 5;
             case "f" :
-                return isWhite ? 6 : 3;
+                return 6;
             case "g" :
-                return isWhite ? 7 : 2;
+                return 7;
             case "h" :
-                return isWhite ? 8 : 2;
+                return 8;
         }
         return 1;
     }
@@ -475,6 +475,11 @@ public class Client {
 
 
                 ChessPosition pos = new ChessPosition(row,col);
+
+                if (positionsToHighlights.contains(pos)) {
+                    color = isLight ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN;
+                }
+
                 ChessPiece piece = board.getPiece(pos);
 
 
