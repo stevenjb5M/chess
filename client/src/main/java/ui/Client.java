@@ -348,7 +348,9 @@ public class Client {
                 if (moves.size() > 0) {
                     var found = false;
                     for (ChessMove move : moves) {
-                        if (move.getStartPosition().getRow() == currentPosition.getRow() && move.getStartPosition().getColumn() == currentPosition.getColumn() && move.getEndPosition().getRow() == nextPosition.getRow() && move.getEndPosition().getColumn() == nextPosition.getColumn()) {
+                        int moveStartRow = move.getStartPosition().getRow();
+                        int moveStartCol = move.getStartPosition().getColumn();
+                        if (moveStartRow == currentPosition.getRow() && moveStartCol == currentPosition.getColumn() && move.getEndPosition().getRow() == nextPosition.getRow() && move.getEndPosition().getColumn() == nextPosition.getColumn()) {
                             webSocketFacade.makeMove(server.authToken, currentGame.gameID(), visitorName, move);
                             found = true;
                             break;
@@ -480,29 +482,29 @@ public class Client {
         }
 
 
-        String reset = "\u001B[0m";
+        String resetString = "\u001B[0m";
 
-        runHeaders(playerColor,reset);
+        runHeaders(playerColor,resetString);
 
         System.out.println();
 
-        ChessBoard board = game.game().getBoard();
+        ChessBoard chessBoard = game.game().getBoard();
 
         boolean isLight = true;
-        int startR = playerColor == WHITE ? 8 : 1;
-        int endR = playerColor == WHITE ? 1 : 8;
-        int dir = playerColor == WHITE ? -1 : 1;
+        int startRR = playerColor == WHITE ? 8 : 1;
+        int endRR = playerColor == WHITE ? 1 : 8;
+        int dirR = playerColor == WHITE ? -1 : 1;
 
-        int startC = playerColor == WHITE ? 1 : 8;
-        int endC = playerColor == WHITE ? 8 : 1;
-        int dirC = playerColor == WHITE ? 1 : -1;
+        int startCC = playerColor == WHITE ? 1 : 8;
+        int endCC = playerColor == WHITE ? 8 : 1;
+        int dirCC = playerColor == WHITE ? 1 : -1;
 
 
-        for (int row = startR; row != endR + dir; row += dir) {
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + reset);
+        for (int row = startRR; row != endRR + dirR; row += dirR) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + resetString);
             isLight = playerColor == WHITE ? (row % 2 == 0) : (row % 2 != 0);
 
-            for (int col = startC; col != endC + dirC; col += dirC) {
+            for (int col = startCC; col != endCC + dirCC; col += dirCC) {
 
                 String color = isLight ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
 
@@ -517,23 +519,23 @@ public class Client {
                     color = SET_BG_COLOR_YELLOW;
                 }
 
-                ChessPiece piece = board.getPiece(pos);
+                ChessPiece piece = chessBoard.getPiece(pos);
 
 
                 if (piece != null) {
-                    String textcolor = piece.getTeamColor() == WHITE ? SET_TEXT_COLOR_RED : SET_TEXT_COLOR_BLUE;
-                    String letter = getOneLetterName(piece.getPieceType());
-                    System.out.print(textcolor + color + " " + letter + " " + reset);
+                    String textColor = piece.getTeamColor() == WHITE ? SET_TEXT_COLOR_RED : SET_TEXT_COLOR_BLUE;
+                    String letterName = getOneLetterName(piece.getPieceType());
+                    System.out.print(textColor + color + " " + letterName + " " + resetString);
                 } else {
-                    System.out.print(color + "   " + reset);
+                    System.out.print(color + "   " + resetString);
                 }
 
                 isLight = !isLight;
             }
-            System.out.println(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + reset);
+            System.out.println(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + resetString);
         }
 
-        runHeaders(playerColor, reset);
+        runHeaders(playerColor, resetString);
 
         System.out.println();
 

@@ -157,7 +157,10 @@ session.getRemote().sendString(new Gson().toJson(notificationError));           
                 var isWhite = playername.equals(thisGameData.whiteUsername());
                 if (isWhite ? movePiece.getTeamColor() == ChessGame.TeamColor.WHITE : movePiece.getTeamColor() == ChessGame.TeamColor.BLACK) {
                     game.makeMove(chessMove);
-                    GameData newGameData = new GameData(thisGameData.gameID(), thisGameData.whiteUsername(), thisGameData.blackUsername(), thisGameData.gameName(), game);
+                    String white = thisGameData.whiteUsername();
+                    String black = thisGameData.blackUsername();
+                    String name = thisGameData.gameName();
+                    GameData newGameData = new GameData(thisGameData.gameID(), white, black, name, game);
                     gameDAO.updateGame(newGameData);
 
                     var message = String.format("%s has made a move", playername);
@@ -167,15 +170,18 @@ session.getRemote().sendString(new Gson().toJson(notificationError));           
                     connections.broadcastInGame(gameID, playername, notification2);
                 } else {
                     var notificationError = ServerMessage.error("Error, invalid move, wrong color");
-        session.getRemote().sendString(new Gson().toJson(notificationError));                    throw new IOException("Error: invalid move wrong color");
+                    session.getRemote().sendString(new Gson().toJson(notificationError));
+                    throw new IOException("Error: invalid move wrong color");
                 }
             } else {
                 var notificationError = ServerMessage.error("Error, invalid move");
-    session.getRemote().sendString(new Gson().toJson(notificationError));                throw new IOException("Error: invalid move");
+                session.getRemote().sendString(new Gson().toJson(notificationError));
+                throw new IOException("Error: invalid move");
             }
         } catch (InvalidMoveException e) {
             var notificationError = ServerMessage.error("Error, invalid move");
-session.getRemote().sendString(new Gson().toJson(notificationError));            throw new IOException("Error: invalid move");
+            session.getRemote().sendString(new Gson().toJson(notificationError));
+            throw new IOException("Error: invalid move");
         }
 
 
