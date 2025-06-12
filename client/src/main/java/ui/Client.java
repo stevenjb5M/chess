@@ -211,8 +211,10 @@ public class Client {
                 if (gameData != null) {
                     webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
                     webSocketFacade.connect(server.authToken, gameData.gameID(),visitorName);
-
-                    gameBoard.showGameBoard(gameData, WHITE);
+                    currentGame = gameData;
+                    state = State.GAME;
+                    repl.changeState(State.GAME);
+                    //gameBoard.showGameBoard(gameData, WHITE);
 
                 } else {
                     throw new ResponseException(400, "No game found, run list to see what games are available");
@@ -285,6 +287,9 @@ public class Client {
 
     public String redraw() throws ResponseException {
         try {
+            if (currentColor == null) {
+                currentColor = WHITE;
+            }
             if (currentGame != null && currentColor != null) {
                 updateCurrentGame(currentGame.gameID());
                 return gameBoard.showGameBoard(currentGame, currentColor);
@@ -300,6 +305,9 @@ public class Client {
         try {
             if (currentGame != null && server.authToken != null) {
                 webSocketFacade.leave(server.authToken, currentGame.gameID(), visitorName);
+                state = State.LOGGED_IN;
+                repl.changeState(State.LOGGED_IN);
+                currentGame = null;
                 return String.format("You have left the game");
             } else {
                 throw new ResponseException(400, "Error leaving game");
@@ -313,6 +321,9 @@ public class Client {
         try {
             if (currentGame != null && server.authToken != null) {
                 webSocketFacade.resign(server.authToken, currentGame.gameID(), visitorName);
+                state = State.LOGGED_IN;
+                repl.changeState(State.LOGGED_IN);
+                currentGame = null;
                 return String.format("You have resigned");
             } else {
                 throw new ResponseException(400, "Error resigning");
