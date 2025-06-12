@@ -248,8 +248,8 @@ session.getRemote().sendString(new Gson().toJson(notificationError));           
         AuthService authTokenService = new AuthService(authDAO);
 
         if (!authTokenService.checkIfAuthExisits(token)) {
-            var notificationError = ServerMessage.error("Error, invalid auth token");
-            var errorMessage = new Gson().toJson(notificationError);
+            var error = ServerMessage.error("Error, invalid auth token");
+            var errorMessage = new Gson().toJson(error);
             session.getRemote().sendString(errorMessage);
             throw new IOException("Error: Auth token was wrong");
         }
@@ -257,8 +257,8 @@ session.getRemote().sendString(new Gson().toJson(notificationError));           
         String playername = authTokenService.getUserByAuth(token);
 
         SQLGameDAO sqlGameDAO = new SQLGameDAO();
-        GameService gameService = new GameService(sqlGameDAO);
-        Collection<GameData> games = gameService.listGames();
+        GameService gameServiceSQL = new GameService(sqlGameDAO);
+        Collection<GameData> games = gameServiceSQL.listGames();
         //connections.add(playername, session);
         GameData thisGameData = null;
 
@@ -279,7 +279,7 @@ session.getRemote().sendString(new Gson().toJson(notificationError));           
         ChessGame game = thisGameData.game();
 
             if (game != null) {
-                gameService.leaveGame(gameID, playername);
+                gameServiceSQL.leaveGame(gameID, playername);
 
                 var message = String.format("%s has left the game", playername);
                 var notification2 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
