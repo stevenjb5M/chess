@@ -350,7 +350,7 @@ public class Client {
                 ChessPosition pos = new ChessPosition(row,col);
                 Collection<ChessMove> moves = currentGame.game().validMoves(pos);
 
-                highlightGameBoard(currentGame, currentColor, moves);
+                highlightGameBoard(currentGame, currentColor, moves, pos);
 
                 return String.format("Piece Highlighted!");
             } else {
@@ -438,7 +438,7 @@ public class Client {
         return "";
     }
 
-    private String highlightGameBoard(GameData game, ChessGame.TeamColor playerColor, Collection<ChessMove> moves) {
+    private String highlightGameBoard(GameData game, ChessGame.TeamColor playerColor, Collection<ChessMove> moves, ChessPosition currentPiece) {
 
 
         Collection<ChessPosition> positionsToHighlights = new ArrayList<>();
@@ -478,6 +478,10 @@ public class Client {
 
                 if (positionsToHighlights.contains(pos)) {
                     color = isLight ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN;
+                }
+
+                if (currentPiece.getRow() == pos.getRow() && currentPiece.getColumn() == pos.getColumn()) {
+                    color = SET_BG_COLOR_YELLOW;
                 }
 
                 ChessPiece piece = board.getPiece(pos);
