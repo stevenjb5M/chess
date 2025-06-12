@@ -259,19 +259,18 @@ session.getRemote().sendString(new Gson().toJson(notificationError));           
         SQLGameDAO sqlGameDAO = new SQLGameDAO();
         GameService gameServiceSQL = new GameService(sqlGameDAO);
         Collection<GameData> games = gameServiceSQL.listGames();
-        //connections.add(playername, session);
         GameData thisGameData = null;
 
-        boolean found = false;
+        boolean gameFound = false;
         for (GameData gameData : games) {
             if (gameData.gameID() == gameID) {
                 thisGameData = gameData;
-                found = true;
+                gameFound = true;
                 break;
             }
         }
 
-        if (!found) {
+        if (!gameFound) {
             var notificationError = ServerMessage.error("Error, invalid game ID");
 session.getRemote().sendString(new Gson().toJson(notificationError));            throw new IOException("Error: Game ID was wrong");
         }
