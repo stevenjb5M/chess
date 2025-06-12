@@ -245,19 +245,19 @@ session.getRemote().sendString(new Gson().toJson(notificationError));           
     private void leave(int gameID, String token, Session session) throws IOException, DataAccessException {
 
         AuthDAO authDAO = new SQLAuthDAO();
-        AuthService authService = new AuthService(authDAO);
+        AuthService authTokenService = new AuthService(authDAO);
 
-        if (!authService.checkIfAuthExisits(token)) {
+        if (!authTokenService.checkIfAuthExisits(token)) {
             var notificationError = ServerMessage.error("Error, invalid auth token");
             var errorMessage = new Gson().toJson(notificationError);
             session.getRemote().sendString(errorMessage);
             throw new IOException("Error: Auth token was wrong");
         }
 
-        String playername = authService.getUserByAuth(token);
+        String playername = authTokenService.getUserByAuth(token);
 
-        SQLGameDAO gameDAO = new SQLGameDAO();
-        GameService gameService = new GameService(gameDAO);
+        SQLGameDAO sqlGameDAO = new SQLGameDAO();
+        GameService gameService = new GameService(sqlGameDAO);
         Collection<GameData> games = gameService.listGames();
         //connections.add(playername, session);
         GameData thisGameData = null;
