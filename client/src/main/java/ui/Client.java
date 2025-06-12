@@ -306,6 +306,15 @@ public class Client {
     public String resign() throws ResponseException {
         try {
             if (currentGame != null && server.authToken != null) {
+
+                System.out.println("Do you want to resign? yes/no");
+                Scanner scanner = new Scanner(System.in);
+                String response = scanner.nextLine().trim().toLowerCase();
+
+                if (!response.equals("yes")) {
+                    return "Resign cancelled.";
+                }
+
                 webSocketFacade.resign(server.authToken, currentGame.gameID(), visitorName);
                 state = State.LOGGED_IN;
                 repl.changeState(State.LOGGED_IN);
@@ -321,7 +330,7 @@ public class Client {
 
     public String move(String... params) throws ResponseException {
         try {
-            if (params.length == 4 && currentGame != null) {
+            if (params.length == 4 && currentGame != null && !currentGame.game().gameOver) {
 
                 int row = Integer.parseInt(params[0]);
                 int col = getNumber(params[1]);

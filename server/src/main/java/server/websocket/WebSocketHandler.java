@@ -85,11 +85,19 @@ public class WebSocketHandler {
 
         connections.add(gameID,playername, session);
 
-
+        ChessGame.TeamColor color = null;
+        var observer = false;
 
         boolean found = false;
         for (GameData gameData : games) {
             if (gameData.gameID() == gameID) {
+                if (gameData.whiteUsername() == playername) {
+                    color = ChessGame.TeamColor.WHITE;
+                } else if (gameData.blackUsername() == playername) {
+                    color = ChessGame.TeamColor.BLACK;
+                } else {
+                    observer = true;
+                }
                 found = true;
                 break;
             }
@@ -100,7 +108,11 @@ public class WebSocketHandler {
 session.getRemote().sendString(new Gson().toJson(notificationError));            throw new IOException("Error: Game ID was wrong");
         }
 
-        var message = String.format("%s has joined the game", playername);
+        var message = String.format("%s has joined the game as %s", playername, color);
+
+        if (observer == true) {
+            message = String.format("%s has joined the game as an observer", playername);
+        }
         var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
         var notification1 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         session.getRemote().sendString(new Gson().toJson(notification));
@@ -156,6 +168,7 @@ session.getRemote().sendString(new Gson().toJson(notificationError));           
                 ChessPiece movePiece = game.getBoard().getPiece(chessMove.getStartPosition());
                 var isWhite = playername.equals(thisGameData.whiteUsername());
                 if (isWhite ? movePiece.getTeamColor() == ChessGame.TeamColor.WHITE : movePiece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+                    ChessPiece.PieceType type = game.getBoard().getPiece(chessMove.getStartPosition()).getPieceType();
                     game.makeMove(chessMove);
                     String white = thisGameData.whiteUsername();
                     String black = thisGameData.blackUsername();
@@ -163,7 +176,22 @@ session.getRemote().sendString(new Gson().toJson(notificationError));           
                     GameData newGameData = new GameData(thisGameData.gameID(), white, black, name, game);
                     gameDAO.updateGame(newGameData);
 
-                    var message = String.format("%s has made a move", playername);
+                    if (game.isInCheck(isWhite ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK)) {
+
+                    }
+
+                    String startString = chessMove.getStartPosition().getRow() + ", " + chessMove.getStartPosition().getColumn();
+                    String endString = chessMove.getEndPosition().toString() + ", " + chessMove.getEndPosition().getColumn();
+                    var message = playername + " has moved there " + type + " from " + startString + " to " + endString;
+
+                    if (game.isInCheck(isWhite ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK)) {
+                        message = String.format("You are in check!", playername);
+                    }
+
+                    if (game.isInCheckmate(isWhite ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK)) {
+                        message = String.format("You are in checkmate!", playername);
+                    }
+
                     var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
                     var notification2 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
                     connections.broadcastAllGame(gameID, notification);
