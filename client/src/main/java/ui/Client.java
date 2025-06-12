@@ -67,20 +67,16 @@ public class Client {
     public String register(String... params) throws ResponseException {
         try {
             if (params.length == 3) {
-
                 String userName = params[0];
                 String password = params[1];
                 String email = params[2];
-
                 UserData newUser = new UserData(userName, password, email);
-
                 RegisterResult response = server.registerUser(newUser);
                 server.authToken = response.getAuthToken();
                 state = State.LOGGED_IN;
                 repl.changeState(State.LOGGED_IN);
                 visitorName = userName;
                 return String.format("You signed in as %s.", visitorName);
-
             } else {
                 throw new ResponseException(400, "Failed to Register");
             }
@@ -95,17 +91,13 @@ public class Client {
 
                 String userName = params[0];
                 String password = params[1];
-
                 UserData newUser = new UserData(userName, password, null);
-
                 LoginResult response = server.loginUser(newUser);
-
                 server.authToken = response.getAuthToken();
                 state = State.LOGGED_IN;
                 repl.changeState(State.LOGGED_IN);
                 visitorName = userName;
                 return String.format("You're signed in as %s.", visitorName);
-
             } else {
                 throw new ResponseException(400, "Failed to login, didn't see a username and password");
             }
@@ -117,23 +109,17 @@ public class Client {
     public String listGames(String... params) throws ResponseException {
         try {
             if (params.length == 0) {
-
                 ListGamesResult result = server.listGames();
-
                 Collection<GameData> games = result.getGames();
-
                 StringBuilder message = new StringBuilder();
                 int gameNumber = 1;
-
                 for (GameData game: games) {
                     String line = gameNumber + ": " + game.gameName() + " White:" + game.whiteUsername() + " Black:" + game.blackUsername() + "\n";
                     message.append(line);
                     gamesWithIDs.put(gameNumber,game);
                     gameNumber++;
                 }
-
                 return String.format(message.toString());
-
             } else {
                 throw new ResponseException(400, "Failed to get games");
             }
