@@ -111,7 +111,7 @@ public class WebSocketHandler {
         GameService gameService = new GameService(gameDAO);
         Collection<GameData> games = gameService.listGames();
 
-        connections.add(playername, session);
+        //connections.add(playername, session);
 
 
 
@@ -129,10 +129,10 @@ public class WebSocketHandler {
             throw new IOException("Error: Game ID was wrong");
         }
 
-        var message = String.format("%s has joined the game", playername);
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
+        var message = String.format("%s has made a move", playername);
+        //var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
         var notification1 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcastLoad(playername, notification);
+        //connections.broadcastLoad(playername, notification);
         connections.broadcastInGame(playername, notification1);
     }
 

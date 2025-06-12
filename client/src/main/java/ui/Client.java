@@ -2,10 +2,7 @@ package ui;
 
 import java.util.*;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import model.GameData;
 import server.*;
 import model.UserData;
@@ -345,7 +342,16 @@ public class Client {
 
     public String highlight(String... params) throws ResponseException {
         try {
-            if (params.length == 1 && currentGame != null) {
+            if (params.length == 2 && currentGame != null) {
+
+                int row = Integer.parseInt(params[0]);
+                int col = getNumber(params[1]);
+
+                ChessPosition pos = new ChessPosition(row,col);
+                Collection<ChessMove> moves = currentGame.game().validMoves(pos);
+
+
+
                 return String.format("Piece Highlighted!");
             } else {
                 throw new ResponseException(400, "Error highlighting piece");
@@ -355,8 +361,91 @@ public class Client {
         }
     }
 
+    private int getNumber(String letter) {
+        var isWhite = currentColor == WHITE;
+
+        switch (letter) {
+            case "a" :
+                return isWhite ? 1 : 8;
+            case "b" :
+                return isWhite ? 2 : 7;
+            case "c" :
+                return isWhite ? 3 : 6;
+            case "d" :
+                return isWhite ? 4 : 5;
+            case "e" :
+                return isWhite ? 5 : 4;
+            case "f" :
+                return isWhite ? 6 : 3;
+            case "g" :
+                return isWhite ? 7 : 2;
+            case "h" :
+                return isWhite ? 8 : 2;
+        }
+        return 1;
+    }
 
     private String showGameBoard(GameData game, ChessGame.TeamColor playerColor) {
+
+        String reset = "\u001B[0m";
+
+        runHeaders(playerColor,reset);
+
+        System.out.println();
+
+        ChessBoard board = game.game().getBoard();
+
+        boolean isLight = true;
+        int startR = playerColor == WHITE ? 8 : 1;
+        int endR = playerColor == WHITE ? 1 : 8;
+        int dir = playerColor == WHITE ? -1 : 1;
+
+        int startC = playerColor == WHITE ? 1 : 8;
+        int endC = playerColor == WHITE ? 8 : 1;
+        int dirC = playerColor == WHITE ? 1 : -1;
+
+
+        for (int row = startR; row != endR + dir; row += dir) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + reset);
+            isLight = playerColor == WHITE ? (row % 2 == 0) : (row % 2 != 0);
+
+            for (int col = startC; col != endC + dirC; col += dirC) {
+
+                String color = isLight ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+
+
+                ChessPosition pos = new ChessPosition(row,col);
+                ChessPiece piece = board.getPiece(pos);
+
+
+                if (piece != null) {
+                    String textcolor = piece.getTeamColor() == WHITE ? SET_TEXT_COLOR_RED : SET_TEXT_COLOR_BLUE;
+                    String letter = getOneLetterName(piece.getPieceType());
+                    System.out.print(textcolor + color + " " + letter + " " + reset);
+                } else {
+                    System.out.print(color + "   " + reset);
+                }
+
+                isLight = !isLight;
+            }
+            System.out.println(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + reset);
+        }
+
+        runHeaders(playerColor, reset);
+
+        System.out.println();
+
+        return "";
+    }
+
+    private String highlightGameBoard(GameData game, ChessGame.TeamColor playerColor, Collection<ChessMove> moves) {
+
+
+        Collection<ChessPosition> positionsToHighlights = new ArrayList<>();
+        for (ChessMove move : moves) {
+            positionsToHighlights.add(move.getEndPosition());
+        }
+
 
         String reset = "\u001B[0m";
 
