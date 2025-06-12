@@ -24,12 +24,14 @@ public class Client {
     private Map<Integer, GameData> gamesWithIDs = new HashMap<>();
     private GameData currentGame;
     private ChessGame.TeamColor currentColor;
+    private GameBoard gameBoard;
 
     public Client(String serverUrl, Repl repl) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         this.notificationHandler = repl;
         this.repl = repl;
+        gameBoard = new GameBoard();
     }
 
     public String eval(String input) {
@@ -179,12 +181,8 @@ public class Client {
 
                 int gameIndex = Integer.parseInt(gameNumber);
                 GameData gameData = gamesWithIDs.get(gameIndex);
-
-
                 JoinGameRequest request = new JoinGameRequest(teamColor, gameData.gameID());
-
                 server.joinGame(request);
-
                 webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
                 webSocketFacade.connect(server.authToken, request.getGameID(), visitorName);
 
@@ -207,17 +205,14 @@ public class Client {
     public String observe(String... params) throws ResponseException {
         try {
             if (params.length == 1) {
-
                 String gameNumber = params[0];
-
                 int gameIndex = Integer.parseInt(gameNumber);
                 GameData gameData = gamesWithIDs.get(gameIndex);
-
                 if (gameData != null) {
                     webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
                     webSocketFacade.connect(server.authToken, gameData.gameID(),visitorName);
 
-                    showGameBoard(gameData, WHITE);
+                    gameBoard.showGameBoard(gameData, WHITE);
 
                 } else {
                     throw new ResponseException(400, "No game found, run list to see what games are available");
@@ -263,8 +258,6 @@ public class Client {
                 - help - with possible commands
                 """;
         }
-
-
         return """
                     - register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                     - login <USERNAME> <PASSWORD> - to play chess
@@ -294,7 +287,7 @@ public class Client {
         try {
             if (currentGame != null && currentColor != null) {
                 updateCurrentGame(currentGame.gameID());
-                return showGameBoard(currentGame, currentColor);
+                return gameBoard.showGameBoard(currentGame, currentColor);
             } else {
                 throw new ResponseException(400, "Error redrawing board");
             }
@@ -328,7 +321,6 @@ public class Client {
             throw new ResponseException(400, "Error resigning");
         }
     }
-
 
     public String move(String... params) throws ResponseException {
         try {
@@ -419,73 +411,15 @@ public class Client {
         return 1;
     }
 
-    private String showGameBoard(GameData game, ChessGame.TeamColor playerColor) {
-
-        String reset = "\u001B[0m";
-
-        System.out.println();
-
-        runHeaders(playerColor,reset);
-
-        System.out.println();
-
-        ChessBoard board = game.game().getBoard();
-
-        boolean isLight = true;
-        int startR = playerColor == WHITE ? 8 : 1;
-        int endR = playerColor == WHITE ? 1 : 8;
-        int dir = playerColor == WHITE ? -1 : 1;
-
-        int startC = playerColor == WHITE ? 1 : 8;
-        int endC = playerColor == WHITE ? 8 : 1;
-        int dirC = playerColor == WHITE ? 1 : -1;
-
-
-        for (int row = startR; row != endR + dir; row += dir) {
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + reset);
-            isLight = playerColor == WHITE ? (row % 2 == 0) : (row % 2 != 0);
-
-            for (int col = startC; col != endC + dirC; col += dirC) {
-
-                String color = isLight ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
-
-
-                ChessPosition pos = new ChessPosition(row,col);
-                ChessPiece piece = board.getPiece(pos);
-
-
-                if (piece != null) {
-                    String textcolor = piece.getTeamColor() == WHITE ? SET_TEXT_COLOR_RED : SET_TEXT_COLOR_BLUE;
-                    String letter = getOneLetterName(piece.getPieceType());
-                    System.out.print(textcolor + color + " " + letter + " " + reset);
-                } else {
-                    System.out.print(color + "   " + reset);
-                }
-
-                isLight = !isLight;
-            }
-            System.out.println(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + reset);
-        }
-
-        runHeaders(playerColor, reset);
-
-        System.out.println();
-
-        return "";
-    }
-
     private String highlightGameBoard(GameData game, ChessGame.TeamColor playerColor, Collection<ChessMove> moves, ChessPosition currentPiece) {
-
-
         Collection<ChessPosition> positionsToHighlights = new ArrayList<>();
         for (ChessMove move : moves) {
             positionsToHighlights.add(move.getEndPosition());
         }
 
-
         String resetString = "\u001B[0m";
 
-        runHeaders(playerColor,resetString);
+        gameBoard.runHeaders(playerColor,resetString);
 
         System.out.println();
 
@@ -500,7 +434,6 @@ public class Client {
         int endCC = playerColor == WHITE ? 8 : 1;
         int dirCC = playerColor == WHITE ? 1 : -1;
 
-
         for (int row = startRR; row != endRR + dirR; row += dirR) {
             System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + resetString);
             isLight = playerColor == WHITE ? (row % 2 == 0) : (row % 2 != 0);
@@ -508,8 +441,6 @@ public class Client {
             for (int col = startCC; col != endCC + dirCC; col += dirCC) {
 
                 String color = isLight ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
-
-
                 ChessPosition pos = new ChessPosition(row,col);
 
                 if (positionsToHighlights.contains(pos)) {
@@ -519,13 +450,11 @@ public class Client {
                 if (currentPiece.getRow() == pos.getRow() && currentPiece.getColumn() == pos.getColumn()) {
                     color = SET_BG_COLOR_YELLOW;
                 }
-
                 ChessPiece piece = chessBoard.getPiece(pos);
-
 
                 if (piece != null) {
                     String textColor = piece.getTeamColor() == WHITE ? SET_TEXT_COLOR_RED : SET_TEXT_COLOR_BLUE;
-                    String letterName = getOneLetterName(piece.getPieceType());
+                    String letterName = gameBoard.getOneLetterName(piece.getPieceType());
                     System.out.print(textColor + color + " " + letterName + " " + resetString);
                 } else {
                     System.out.print(color + "   " + resetString);
@@ -536,49 +465,11 @@ public class Client {
             System.out.println(SET_BG_COLOR_LIGHT_GREY + " " + row + " " + resetString);
         }
 
-        runHeaders(playerColor, resetString);
+        gameBoard.runHeaders(playerColor, resetString);
 
         System.out.println();
 
         return "";
-    }
-
-    private String getOneLetterName(ChessPiece.PieceType type) {
-        switch (type) {
-            case KING: { return "K";}
-            case QUEEN: { return "Q";}
-            case KNIGHT: { return "N";}
-            case ROOK: { return "R";}
-            case BISHOP: { return "B";}
-            case PAWN: { return "P";}
-            default: return "";
-        }
-    }
-
-    private void runHeaders(ChessGame.TeamColor color, String reset) {
-        if (color == WHITE) {
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " a " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " b " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " c " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " d " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " e " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " f " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " g " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " h " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + reset);
-        } else {
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " h " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " g " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " f " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " e " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " d " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " c " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " b " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + " a " + reset);
-            System.out.print(SET_BG_COLOR_LIGHT_GREY + "   " + reset);
-        }
     }
 
     private void updateCurrentGame(int gameID) {
