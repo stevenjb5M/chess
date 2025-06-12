@@ -113,8 +113,22 @@ public class SQLGameDAO implements GameDAO {
         return games;
     }
 
-    public void removePlayer(int gameID, String playerName) {
-
+    public void removePlayer(int gameID, String playerName) throws DataAccessException {
+        try {
+        GameData game = getGame(gameID);
+        if (game != null) {
+            GameData newGame = null;
+            if (playerName != null && playerName.equals(game.whiteUsername())) {
+                newGame = new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game());
+            } else if (playerName != null && playerName.equals(game.blackUsername())) {
+                newGame = new GameData(game.gameID(), game.whiteUsername(), null, game.gameName(), game.game());
+            }
+            if (newGame != null) {
+                updateGame(newGame);
+            }
+        }} catch (DataAccessException e) {
+            throw new DataAccessException("unable to update database:", e);
+        }
     }
 
     @Override

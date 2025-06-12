@@ -4,6 +4,7 @@ import chess.ChessGame;
 import model.GameData;
 import server.JoinGameRequest;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 
 public class MemoryGameDAQ implements GameDAO {
@@ -29,6 +30,11 @@ public class MemoryGameDAQ implements GameDAO {
     public GameData getGame(int gameID) throws DataAccessException {
         GameData data = games.get(gameID);
         return data;
+    }
+
+    @Override
+    public void removePlayer(int gameID, String playname) throws DataAccessException {
+
     }
 
     @Override

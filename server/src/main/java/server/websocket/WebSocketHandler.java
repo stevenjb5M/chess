@@ -290,27 +290,18 @@ public class WebSocketHandler {
 
         ChessGame game = thisGameData.game();
 
-        try {
             if (game != null) {
+                gameService.leaveGame(gameID, playername);
 
-
-                var message = String.format("%s has made a move", playername);
-                var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
+                var message = String.format("%s has left the game", playername);
                 var notification2 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                connections.broadcastAllGame(notification);
+                connections.remove(playername);
                 connections.broadcastInGame(playername, notification2);
             } else {
                 var notificationError = ServerMessage.error("Error, invalid move");
                 connections.broadcastLoad(playername, notificationError);
                 throw new IOException("Error: invalid move");
             }
-        } catch (InvalidMoveException e) {
-            var notificationError = ServerMessage.error("Error, invalid move");
-            connections.broadcastLoad(playername, notificationError);
-            throw new IOException("Error: invalid move");
-        }
-
-
 
     }
 

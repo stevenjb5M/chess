@@ -48,9 +48,7 @@ public class GameService {
 
     public void leaveGame(int gameID, String username) throws DataAccessException {
         if (this.gameDAO.getGame(gameID) != null && username != null) {
-
             this.gameDAO.removePlayer(gameID, username);
-
         } else {
             throw new BadRequestException();
         }
