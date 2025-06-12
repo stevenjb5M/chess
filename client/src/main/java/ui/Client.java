@@ -329,8 +329,36 @@ public class Client {
 
     public String move(String... params) throws ResponseException {
         try {
-            if (params.length == 2 && currentGame != null) {
-                webSocketFacade.makeMove(server.authToken, currentGame.gameID(), visitorName);
+            if (params.length == 4 && currentGame != null) {
+
+                int row = Integer.parseInt(params[0]);
+                int col = getNumber(params[1]);
+
+                int rowMove = Integer.parseInt(params[2]);
+                int colMove = getNumber(params[3]);
+
+                ChessPosition currentPosition = new ChessPosition(row,col);
+                ChessPosition nextPosition = new ChessPosition(rowMove,colMove);
+
+                Collection<ChessMove> moves = currentGame.game().validMoves(currentPosition);
+
+                if (moves.size() > 0) {
+                    var found = false;
+                    for (ChessMove move : moves) {
+                        if (move.getStartPosition().getRow() == currentPosition.getRow() && move.getStartPosition().getColumn() == currentPosition.getColumn() && move.getEndPosition().getRow() == nextPosition.getRow() && move.getEndPosition().getColumn() == nextPosition.getColumn()) {
+                            webSocketFacade.makeMove(server.authToken, currentGame.gameID(), visitorName, move);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        throw new ResponseException(400, "Error moving piece");
+                    }
+
+                } else {
+                    throw new ResponseException(400, "Error moving piece");
+                }
+
                 return String.format("Piece Moved!");
             } else {
                 throw new ResponseException(400, "Error moving piece");
