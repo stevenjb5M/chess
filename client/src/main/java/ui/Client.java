@@ -25,6 +25,8 @@ public class Client {
     private GameData currentGame;
     private ChessGame.TeamColor currentColor;
     private GameBoard gameBoard;
+    private boolean observingGame = false;
+
 
     public Client(String serverUrl, Repl repl) {
         server = new ServerFacade(serverUrl);
@@ -57,7 +59,9 @@ public class Client {
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
-        }
+        } catch (Exception e) {
+        return "Error with your request. Try again";
+    }
     }
 
     public State getState() {
@@ -165,13 +169,17 @@ public class Client {
                     throw new ResponseException(400, "Invalid Color");
                 }
 
+                if (!isNumber(gameNumber)) {
+                    throw new ResponseException(400, "Failed to join game");
+                }
+
                 int gameIndex = Integer.parseInt(gameNumber);
                 GameData gameData = gamesWithIDs.get(gameIndex);
                 JoinGameRequest request = new JoinGameRequest(teamColor, gameData.gameID());
                 server.joinGame(request);
                 webSocketFacade = new WebSocketFacade(serverUrl, notificationHandler);
                 webSocketFacade.connect(server.authToken, request.getGameID(), visitorName);
-
+                observingGame = false;
                 state = State.GAME;
                 repl.changeState(State.GAME);
                 currentGame = gameData;
@@ -192,6 +200,11 @@ public class Client {
         try {
             if (params.length == 1) {
                 String gameNumber = params[0];
+
+                if (!isNumber(gameNumber)) {
+                    return String.format("Game not found");
+                }
+
                 int gameIndex = Integer.parseInt(gameNumber);
                 GameData gameData = gamesWithIDs.get(gameIndex);
                 if (gameData != null) {
@@ -200,6 +213,7 @@ public class Client {
                     currentGame = gameData;
                     state = State.GAME;
                     repl.changeState(State.GAME);
+                    observingGame = true;
                     //gameBoard.showGameBoard(gameData, WHITE);
 
                 } else {
@@ -239,9 +253,9 @@ public class Client {
                 return """
                 - redraw - redraws the game for visability
                 - leave - removes you from the game
-                - move <CurrentPiecePosition> <NewPiecePosition> - make a chess move on your turn
+                - move <CurrentPiecePosition> <NewPiecePosition> <Promotion Letter>- make a chess move on your turn
                 - resign - resign from a game
-                - highlight - highlights user moves
+                - highlight <CurrentPiecePosition> - highlights user moves
                 - quit - playing chess
                 - help - with possible commands
                 """;
@@ -294,6 +308,7 @@ public class Client {
                 state = State.LOGGED_IN;
                 repl.changeState(State.LOGGED_IN);
                 currentGame = null;
+                observingGame = false;
                 return String.format("You have left the game");
             } else {
                 throw new ResponseException(400, "Error leaving game");
@@ -305,7 +320,7 @@ public class Client {
 
     public String resign() throws ResponseException {
         try {
-            if (currentGame != null && server.authToken != null) {
+            if (currentGame != null && server.authToken != null && observingGame == false) {
 
                 System.out.println("Do you want to resign? yes/no");
                 Scanner scanner = new Scanner(System.in);
@@ -328,20 +343,42 @@ public class Client {
         }
     }
 
+    private boolean isLetter(String input) {
+        return input != null && input.matches("[a-zA-Z]");
+    }
+
+    private boolean isNumber(String input) {
+        return input != null && input.matches("\\d+");
+    }
+
     public String move(String... params) throws ResponseException {
         try {
-            if (params.length == 4 && currentGame != null && !currentGame.game().gameOver) {
+            if (params.length >= 4 && params.length <= 5 && currentGame != null && !currentGame.game().gameOver) {
 
-                int row = Integer.parseInt(params[0]);
-                int col = getNumber(params[1]);
+                if (!isLetter(params[0]) || !isNumber(params[1]) || !isLetter(params[2]) || !isNumber(params[3])) {
+                    throw new ResponseException(400, "Error moving piece");
+                }
 
-                int rowMove = Integer.parseInt(params[2]);
-                int colMove = getNumber(params[3]);
+                int row = Integer.parseInt(params[1]);
+                int col = getNumber(params[0]);
 
-                ChessPosition currentPosition = new ChessPosition(row,col);
-                ChessPosition nextPosition = new ChessPosition(rowMove,colMove);
+                int rowMove = Integer.parseInt(params[3]);
+                int colMove = getNumber(params[2]);
 
-                Collection<ChessMove> moves = currentGame.game().validMoves(currentPosition);
+
+
+
+                if (currentGame.game().getTeamTurn() == currentColor) {
+                    ChessPosition currentPosition = new ChessPosition(row,col);
+                    ChessPosition nextPosition = new ChessPosition(rowMove,colMove);
+
+                    ChessPiece piece = currentGame.game().getBoard().getPiece(currentPosition);
+
+                    if (piece == null || piece.getTeamColor() != currentColor || observingGame == true) {
+                        throw new ResponseException(400, "Error moving piece");
+                    }
+
+                    Collection<ChessMove> moves = currentGame.game().validMoves(currentPosition);
 
                     var found = false;
                     for (ChessMove move : moves) {
@@ -355,15 +392,34 @@ public class Client {
                         int nextRow = nextPosition.getRow();
                         int nextCol = nextPosition.getColumn();
                         if (moveStartRow == currentRow && moveStartCol == currentCol && moveEndRow == nextRow && moveEndCol == nextCol) {
+                            if (params.length == 5 && params[4] != null && (nextRow == 8 || nextRow == 1)) {
+                                String promotion = params[4];
+                                try {
+                                    ChessPiece.PieceType type = getPromotionType(promotion);
+                                    if (type != null) {
+                                        move = new ChessMove(move.getStartPosition(), move.getEndPosition(), type);
+                                        webSocketFacade.makeMove(server.authToken, currentGame.gameID(), visitorName, move);
+                                        found = true;
+                                        return String.format("Piece Moved!");
+                                    } else {
+                                        throw new ResponseException(400, "Error moving piece");
+                                    }
+                                } catch (ResponseException e){
+                                    throw new ResponseException(400, "Error moving piece");
+                                }
+                            }
                             webSocketFacade.makeMove(server.authToken, currentGame.gameID(), visitorName, move);
                             found = true;
-                            break;
+                            return String.format("Piece Moved!");
                         }
                     }
                     if (!found) {
                         throw new ResponseException(400, "Error moving piece");
                     }
-                return String.format("Piece Moved!");
+                    return String.format("Error moving piece");
+                } else {
+                    throw new ResponseException(400, "Error moving piece");
+                }
             } else {
                 throw new ResponseException(400, "Error moving piece");
             }
@@ -376,8 +432,12 @@ public class Client {
         try {
             if (params.length == 2 && currentGame != null) {
 
-                int row = Integer.parseInt(params[0]);
-                int col = getNumber(params[1]);
+                if (!isLetter(params[0]) || !isNumber(params[1])) {
+                    throw new ResponseException(400, "Error highlighting piece");
+                }
+
+                int row = Integer.parseInt(params[1]);
+                int col = getNumber(params[0]);
 
                 ChessPosition pos = new ChessPosition(row,col);
                 Collection<ChessMove> moves = currentGame.game().validMoves(pos);
@@ -393,7 +453,7 @@ public class Client {
         }
     }
 
-    private int getNumber(String letter) {
+    private int getNumber(String letter) throws ResponseException {
         var isWhite = currentColor == WHITE;
 
         switch (letter) {
@@ -413,8 +473,9 @@ public class Client {
                 return 7;
             case "h" :
                 return 8;
+            default:
+                throw new ResponseException(400, "Invalid column letter");
         }
-        return 1;
     }
 
     private String highlightGameBoard(GameData game, ChessGame.TeamColor playerColor, Collection<ChessMove> moves, ChessPosition currentPiece) {
@@ -497,7 +558,26 @@ public class Client {
             }
 
         } catch (ResponseException e) {
-            throw new RuntimeException(e);
+            System.out.println("Failed to update game list.");
+        }
+    }
+
+    public ChessPiece.PieceType getPromotionType(String input) {
+        switch (input.toLowerCase()) {
+            case "p" :
+                return ChessPiece.PieceType.PAWN;
+            case "b" :
+                return ChessPiece.PieceType.BISHOP;
+            case "k" :
+                return ChessPiece.PieceType.KING;
+            case "n" :
+                return ChessPiece.PieceType.KNIGHT;
+            case "q" :
+                return ChessPiece.PieceType.QUEEN;
+            case "r" :
+                return ChessPiece.PieceType.ROOK;
+            default:
+                return null;
         }
     }
 }

@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Timer;
 
+import static chess.ChessGame.TeamColor.WHITE;
+
 
 @WebSocket
 public class WebSocketHandler {
@@ -91,9 +93,9 @@ public class WebSocketHandler {
         boolean found = false;
         for (GameData gameData : games) {
             if (gameData.gameID() == gameID) {
-                if (gameData.whiteUsername() == playername) {
+                if (playername.equals(gameData.whiteUsername())) {
                     color = ChessGame.TeamColor.WHITE;
-                } else if (gameData.blackUsername() == playername) {
+                } else if (playername.equals(gameData.blackUsername())) {
                     color = ChessGame.TeamColor.BLACK;
                 } else {
                     observer = true;
@@ -176,26 +178,35 @@ session.getRemote().sendString(new Gson().toJson(notificationError));           
                     GameData newGameData = new GameData(thisGameData.gameID(), white, black, name, game);
                     gameDAO.updateGame(newGameData);
 
-                    if (game.isInCheck(isWhite ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK)) {
-
-                    }
-
-                    String startString = chessMove.getStartPosition().getRow() + ", " + chessMove.getStartPosition().getColumn();
-                    String endString = chessMove.getEndPosition().toString() + ", " + chessMove.getEndPosition().getColumn();
+                    String startLetter = getLetter(chessMove.getStartPosition().getColumn());
+                    String startString = startLetter + ", " + chessMove.getStartPosition().getRow();
+                    String endLetter = getLetter(chessMove.getEndPosition().getColumn());
+                    String endString = endLetter + ", " + chessMove.getEndPosition().getRow() + ", ";
                     var message = playername + " has moved there " + type + " from " + startString + " to " + endString;
-
-                    if (game.isInCheck(isWhite ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK)) {
-                        message = String.format("You are in check!", playername);
+                    var checkMessage = "";
+                    String otherPlayerName = "";
+                    if (playername.equals(white)) {
+                        otherPlayerName = black;
+                    } else {
+                        otherPlayerName = white;
                     }
 
-                    if (game.isInCheckmate(isWhite ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK)) {
-                        message = String.format("You are in checkmate!", playername);
+                    if (game.isInCheck(!isWhite ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK)) {
+                        checkMessage = String.format("%s is in check!", otherPlayerName);
+                    }
+
+                    if (game.isInCheckmate(!isWhite ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK)) {
+                        checkMessage = String.format("%s is in checkmate! Game over!", otherPlayerName);
                     }
 
                     var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
                     var notification2 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                    var notification3 = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, checkMessage);
                     connections.broadcastAllGame(gameID, notification);
                     connections.broadcastInGame(gameID, playername, notification2);
+                    if (checkMessage != "") {
+                        connections.broadcastAllGame(gameID, notification3);
+                    }
                 } else {
                     var notificationError = ServerMessage.error("Error, invalid move, wrong color");
                     session.getRemote().sendString(new Gson().toJson(notificationError));
@@ -210,8 +221,9 @@ session.getRemote().sendString(new Gson().toJson(notificationError));           
             var notificationError = ServerMessage.error("Error, invalid move");
             session.getRemote().sendString(new Gson().toJson(notificationError));
             throw new IOException("Error: invalid move");
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
         }
-
 
 
     }
@@ -319,6 +331,29 @@ session.getRemote().sendString(new Gson().toJson(notificationError));           
 
     }
 
+    private String getLetter(int number) throws ResponseException {
+        //var isWhite = currentColor == WHITE;
 
+        switch (number) {
+            case 1 :
+                return "a";
+            case 2 :
+                return "b";
+            case 3 :
+                return "c";
+            case 4 :
+                return "d";
+            case 5 :
+                return "e";
+            case 6 :
+                return "f";
+            case 7 :
+                return "g";
+            case 8 :
+                return "h";
+            default:
+                throw new ResponseException(400, "Invalid column number");
+        }
+    }
 
 }

@@ -59,6 +59,14 @@ public class Repl implements NotificationHandler {
                 throw new RuntimeException(e);
             }
         } else if (notification.message != null) {
+            if (notification.message.contains("resigned")) {
+                try {
+                    client.redraw();
+                    printPrompt();
+                } catch (ResponseException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             System.out.println(SET_TEXT_COLOR_RED + notification.message);
             printPrompt();
         }
